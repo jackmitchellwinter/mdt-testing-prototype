@@ -1,0 +1,542 @@
+/* Prototype-specific styles. Prefer GOV.UK Frontend classes over bespoke rules. */
+
+/* Explicitly load GDS Transport from unpkg's absolute path. The govuk-frontend
+   CDN CSS references fonts with a broken relative URL, so we redeclare them here. */
+@font-face {
+  font-family: "GDS Transport";
+  src: url("https://unpkg.com/govuk-frontend@5.7.1/dist/govuk/assets/fonts/light-94a07e06a1-v2.woff2") format("woff2"),
+       url("https://unpkg.com/govuk-frontend@5.7.1/dist/govuk/assets/fonts/light-f591b13f7d-v2.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GDS Transport";
+  src: url("https://unpkg.com/govuk-frontend@5.7.1/dist/govuk/assets/fonts/bold-b542beb274-v2.woff2") format("woff2"),
+       url("https://unpkg.com/govuk-frontend@5.7.1/dist/govuk/assets/fonts/bold-affa96571d-v2.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Ensure all custom elements use the GDS font stack — never fall back to serif. */
+.mdt-stat-strip,
+.mdt-stat-tile,
+.mdt-stat-tile *,
+.mdt-stat-card,
+.mdt-stat-card *,
+.mdt-priority,
+.mdt-audit,
+.mdt-audit *,
+.mdt-followup-group,
+.mdt-followup-group *,
+.mdt-selection-summary,
+.mdt-selection-summary *,
+.mdt-required-hint,
+.mdt-reserve-link,
+.mdt-sidebar-card,
+.mdt-sidebar-card *,
+.mdt-tabs,
+.mdt-tabs *,
+.mdt-workspace-header,
+.mdt-workspace-header *,
+.mdt-list-toolbar,
+.mdt-list-toolbar *,
+.mdt-selection-table,
+.mdt-selection-table *,
+.mdt-releasing-flag,
+.mdt-sort-btn,
+.mdt-research__panel,
+.mdt-research__panel *,
+.mdt-research__toggle {
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
+/* ---- Compact metric strip (used on the month workspace) --------------- */
+.mdt-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 25px;
+  padding: 0;
+  list-style: none;
+}
+.mdt-stat-tile {
+  padding: 12px 15px;
+  background: #f3f2f1;
+  border-top: 4px solid #1d70b8;
+}
+.mdt-stat-tile--warning { border-top-color: #f47738; }
+.mdt-stat-tile--attention { border-top-color: #d4351c; }
+.mdt-stat-tile__label {
+  font-size: 14px;
+  color: #505a5f;
+  margin: 0 0 4px;
+  font-weight: 400;
+}
+.mdt-stat-tile__value {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.1;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+.mdt-stat-tile__value--sub {
+  font-size: 14px;
+  color: #505a5f;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* ---- Sidebar card (right column on the workspace) --------------------- */
+.mdt-sidebar-card {
+  background: #f3f2f1;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+.mdt-sidebar-card h2 {
+  margin-top: 0;
+}
+.mdt-sidebar-card__link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #b1b4b6;
+}
+.mdt-sidebar-card__link:last-child { border-bottom: 0; }
+.mdt-sidebar-card__count {
+  font-size: 14px;
+  color: #505a5f;
+  white-space: nowrap;
+}
+.mdt-sidebar-card__count--warning { color: #d4351c; font-weight: 700; }
+
+/* ---- Legacy large stat card (kept for the report page) ---------------- */
+.mdt-stat-card {
+  border-left: 5px solid #1d70b8;
+  padding: 15px 20px;
+  background: #f3f2f1;
+}
+.mdt-stat-card--warning { border-left-color: #f47738; }
+.mdt-stat-card--attention { border-left-color: #d4351c; }
+.mdt-stat-card__label {
+  font-size: 16px;
+  color: #505a5f;
+  margin: 0;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+.mdt-stat-card__value {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 5px 0 0;
+  line-height: 1;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
+.mdt-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  background: #f3f2f1;
+}
+
+.mdt-priority::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.mdt-priority--release-today { color: #d4351c; border-color: #d4351c; }
+.mdt-priority--release-24h { color: #d4351c; border-color: #d4351c; }
+.mdt-priority--release-7d { color: #f47738; border-color: #f47738; }
+.mdt-priority--rolled-over { color: #4c2c92; border-color: #4c2c92; }
+.mdt-priority--standard { color: #505a5f; border-color: #505a5f; }
+
+.mdt-audit {
+  border-left: 3px solid #b1b4b6;
+  padding-left: 15px;
+}
+
+.mdt-audit__entry {
+  margin-bottom: 20px;
+}
+
+.mdt-audit__meta {
+  font-size: 14px;
+  color: #505a5f;
+}
+
+.mdt-followup-group {
+  border: 2px solid #b1b4b6;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.mdt-followup-group--mandatory { border-color: #d4351c; background: #fbeae8; }
+.mdt-followup-group--recommended { border-color: #1d70b8; background: #eef4fa; }
+.mdt-followup-group--local { border-color: #505a5f; }
+
+.mdt-followup-group__label {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.mdt-followup-group--mandatory .mdt-followup-group__label { background: #d4351c; }
+.mdt-followup-group--recommended .mdt-followup-group__label { background: #1d70b8; }
+.mdt-followup-group--local .mdt-followup-group__label { background: #505a5f; }
+
+/* Research mode floating panel */
+.mdt-research__toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 999;
+  background: #4c2c92;
+  color: #ffffff;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mdt-research__toggle:focus {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+.mdt-research__panel {
+  position: fixed;
+  right: 20px;
+  bottom: 70px;
+  width: 340px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 3px solid #4c2c92;
+  padding: 20px;
+  z-index: 998;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.mdt-research__panel[hidden] { display: none; }
+
+.mdt-drilldown-list {
+  padding-left: 20px;
+}
+
+.mdt-drilldown-list li {
+  margin-bottom: 4px;
+}
+
+.mdt-reserve-link {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #eef4fa;
+  border: 1px solid #1d70b8;
+  color: #1d70b8;
+  font-size: 14px;
+}
+
+.mdt-month-history-list {
+  margin-top: 0;
+}
+
+.mdt-month-history-item {
+  border: 1px solid #b1b4b6;
+  padding: 16px 20px;
+  margin-bottom: 15px;
+  background: #ffffff;
+}
+
+.mdt-month-history-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mdt-month-history-item__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.mdt-month-history-kpi {
+  padding: 12px 14px;
+  background: #f3f2f1;
+  border-top: 4px solid #1d70b8;
+}
+
+.mdt-month-history-kpi--warning {
+  border-top-color: #f47738;
+}
+
+.mdt-month-history-kpi__label {
+  margin: 0 0 4px;
+  color: #505a5f;
+  font-size: 14px;
+}
+
+.mdt-month-history-kpi__value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.mdt-month-history-kpi__value--sub {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 14px;
+  color: #505a5f;
+  font-weight: 400;
+}
+
+.mdt-contained-view__header {
+  margin-bottom: 24px;
+}
+
+.moj-alert {
+  border-left: 4px solid #1d70b8;
+  background: #f3f2f1;
+  padding: 16px 20px;
+}
+
+.moj-alert--info {
+  border-left-color: #1d70b8;
+}
+
+.moj-alert__content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure focus outline is visible on all interactive elements at 200% zoom */
+:focus-visible {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+/* Card list fallback for narrow widths / high zoom */
+@media (max-width: 640px) {
+  .mdt-hide-narrow { display: none; }
+}
+
+.mdt-selection-summary {
+  background: #f3f2f1;
+  padding: 15px 20px;
+  border-left: 5px solid #1d70b8;
+  margin-bottom: 20px;
+}
+
+.mdt-required-hint {
+  color: #d4351c;
+  font-weight: 700;
+}
+
+/* ---- Phase 4: workspace header, tabs, list toolbar, sort, releasing flag ---- */
+
+.mdt-workspace-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.mdt-workspace-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+.mdt-workspace-header__actions form { margin: 0; }
+.mdt-workspace-header__actions .govuk-button { margin: 0; }
+
+.mdt-tabs {
+  border-bottom: 1px solid #b1b4b6;
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+.mdt-tabs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.mdt-tabs__item { margin: 0; }
+.mdt-tabs__link {
+  display: inline-block;
+  padding: 12px 20px;
+  color: #1d70b8;
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 4px solid transparent;
+  margin-bottom: -1px;
+}
+.mdt-tabs__link:hover {
+  background: #f3f2f1;
+  text-decoration: underline;
+}
+.mdt-tabs__link--current {
+  color: #0b0c0c;
+  border-bottom-color: #1d70b8;
+  background: #fff;
+}
+.mdt-tabs__link--current:hover { text-decoration: none; }
+.mdt-tabs__count {
+  display: inline-block;
+  min-width: 24px;
+  padding: 0 8px;
+  margin-left: 6px;
+  background: #f3f2f1;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  color: #0b0c0c;
+}
+.mdt-tabs__link--current .mdt-tabs__count {
+  background: #1d70b8;
+  color: #fff;
+}
+
+.mdt-list-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.mdt-sort-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #1d70b8;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: left;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+.mdt-sort-btn:hover { text-decoration: underline; }
+.mdt-sort-btn:focus { outline: 3px solid #ffdd00; }
+.mdt-sort-btn__indicator {
+  display: inline-block;
+  min-width: 12px;
+  margin-left: 4px;
+  color: #505a5f;
+  font-size: inherit;
+}
+
+.mdt-releasing-flag {
+  display: inline-block;
+  background: #fff2d3;
+  color: #594d00;
+  border: 1px solid #f0d878;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.mdt-selection-table th.govuk-table__header {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.mdt-tab-panel { min-height: 200px; }
+
+/* Two-tile compact strip used inside a tab panel (Completed + Releasing this month). */
+.mdt-stat-strip--tight {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 240px));
+  margin-bottom: 20px;
+}
+.mdt-stat-strip--tight .mdt-stat-tile__value { font-size: 28px; }
+
+/* Green chip for reserves that have been added to the random list. */
+.mdt-reserve-flag {
+  display: inline-block;
+  background: #cce2d8;
+  color: #005a30;
+  border: 1px solid #85994b;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
+/* Search box widened to 2/3 of the available width (Generated list / previous month pages). */
+.mdt-search-two-thirds .govuk-input {
+  max-width: 66.66%;
+  width: 100%;
+}
+
+/* Manual tab panel hide/show — no GOV.UK Frontend JS bundle is loaded in this prototype. */
+.govuk-tabs__panel--hidden {
+  display: none;
+}
+
+/* ---- Print: testing list (random + reserve, as originally generated) ---- */
+.mdt-print-only {
+  display: none;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .mdt-print-only,
+  .mdt-print-only * {
+    visibility: visible;
+  }
+  .mdt-print-only {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  .mdt-print-only table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  .mdt-print-only th,
+  .mdt-print-only td {
+    border: 1px solid #b1b4b6;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 12pt;
+  }
+  .mdt-print-pagebreak {
+    break-before: page;
+    page-break-before: always;
+  }
+  @page {
+    size: landscape;
+  }
+}

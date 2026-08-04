@@ -1,0 +1,251 @@
+Execution Plan for GitHub Copilot
+Phase 1: Repository and evidence review
+Before writing application code:
+
+Inspect the complete repository.
+Read the MDT sprint boards and UX/AI Constitution.
+Locate any existing:
+
+DPS templates
+MoJ or GOV.UK components
+Prototype routes
+Design tokens
+Fixtures
+Tests
+Architectural decisions
+
+
+Extract the sprint-board requirements into:
+
+Must
+Should
+Could
+Out of scope
+
+
+Create an ASSUMPTIONS.md file.
+Record unclear or conflicting requirements in OPEN_QUESTIONS.md.
+Do not invent answers to policy questions.
+
+Output
+Plain Text1README.md2ASSUMPTIONS.md3OPEN_QUESTIONS.md4docs/5└── requirements.mdShow more lines
+
+Phase 2: Journey and route skeleton
+Build the complete navigational skeleton before implementing detailed forms.
+Create routes for:
+Plain Text1/mdt2/mdt/:month3/mdt/:month/random-list4/mdt/:month/reserve-list5/mdt/:month/awaiting-results6/mdt/:month/follow-up7/mdt/:month/report8/mdt/:month/selection/:selectionId9/mdt/previous-months10/mdt/guidanceShow more lines
+For every route:
+
+Add a meaningful page title.
+Add one clear h1.
+Add breadcrumbs or a back link consistent with DPS conventions.
+Add a clear primary action where required.
+Include representative empty and error states.
+
+Gate
+Do not proceed until all core routes are keyboard accessible and navigation is understandable without visual styling.
+
+Phase 3: Domain model and fixtures
+
+Implement typed domain models.
+Create deterministic fictional data.
+Keep data separate from UI components.
+Implement selectors for:
+
+Current random list
+Available reserve list
+Urgent releases
+Awaiting results
+Follow-up required
+Previous-month unresolved work
+
+
+Add unit tests for selectors.
+Add safeguards against duplicate IDs and sample references.
+
+Gate
+All scenarios must be reproducible after reloading or resetting the prototype.
+
+Phase 4: Monthly overview and lists
+Build:
+
+MDT service homepage
+Monthly overview
+Random list
+Reserve list
+Status filters
+Search
+Priority labels
+Progress summary
+
+Use actual HTML tables only where the information is genuinely tabular.
+At narrow widths or high zoom, retain reading order, visible labels and usable actions.
+Gate
+A researcher must be able to ask, “Who should you test next, and why?” and the participant must have enough information to answer.
+
+Phase 5: Test-attempt and reserve journeys
+Build the record-test-attempt flow.
+Suggested steps:
+
+Review selected prisoner
+Choose attempt outcome
+Enter reason or sample information
+Review answers
+Confirm
+Show confirmation and update status
+
+Then build the reserve flow:
+
+Record why the original selection cannot proceed
+Review the reserve requirement
+Select the policy-appropriate reserve
+Confirm the link
+Update both records
+Write corresponding audit events
+
+Gate
+The user must be unable to use a reserve without leaving a traceable reason and link to the original selection.
+
+Phase 6: Results and follow-up
+Build:
+
+Awaiting-results list
+Sample lookup
+Result-entry form
+Result confirmation
+Positive-result follow-up tasks
+Follow-up status recording
+Audit history
+
+Clearly style and label:
+
+Mandatory tasks
+Recommended tasks
+Optional or local tasks
+
+Do not rely only on colour to distinguish them.
+Gate
+A user must be able to explain what they are required to do and what remains a professional or local decision.
+
+Phase 7: Previous months and reporting
+Build:
+
+Previous-month list
+Previous-month overview
+Rollover notification
+Unresolved-record journey
+Monthly report
+Drill-down from totals to records
+Month-completion review
+
+Implement calculations as pure, tested functions.
+For every metric, document:
+
+Numerator
+Denominator
+Included statuses
+Excluded statuses
+Treatment of reserves
+Treatment of late results
+
+Gate
+No total should exist only as hard-coded display text. Every reported figure must be derived from the fictional underlying records.
+
+Phase 8: Accessibility and resilience
+Complete a dedicated accessibility pass.
+Test:
+
+Keyboard-only journeys
+Focus order
+Skip link
+Heading hierarchy
+Form labels
+Error summaries
+Focus management
+Screen-reader names
+Status announcements
+Colour contrast
+200 percent zoom
+High-contrast considerations
+Reduced motion
+Table semantics
+Hidden content
+Page titles
+
+Add automated axe checks to the core Playwright journeys.
+Automated testing does not replace manual accessibility review.
+
+Phase 9: User-research mode
+Add a discreet prototype control that allows a researcher to:
+
+Reset the scenario
+Select a reporting month
+Choose a starting scenario
+Simulate a delayed laboratory result
+Simulate an unavailable prisoner
+Restore all fictional data
+
+Keep research controls separate from the participant-facing interface.
+Document facilitator instructions in:
+Plain Text1docs/research-guide.mdShow more lines
+Include:
+
+Starting route
+Participant task
+Required fixture
+Expected system state
+Assumption being tested
+Suggested prompts
+What to observe
+
+
+Phase 10: Final quality review
+Before declaring completion:
+
+Run:
+
+Type checking
+Linting
+Unit tests
+Component tests
+End-to-end tests
+Automated accessibility tests
+
+
+Remove dead code and unused dependencies.
+Check for accidental real information.
+Review all policy text.
+Search for hard-coded unvalidated rules.
+Review all audit events.
+Confirm monthly calculations manually against fixture data.
+Complete every research scenario using only a keyboard.
+Review the service at 200 percent zoom.
+Update the README and open questions.
+
+
+Instructions for Copilot While Working
+Use the following working rules throughout the implementation:
+Plain Text1Work incrementally.2 3Before changing code, inspect the relevant files and explain the intended change briefly.4 5Make the smallest coherent change that completes the current task.6 7Do not rewrite functioning parts of the repository without a clear reason.8 9Do not invent policy, security, retention or integration requirements.10 11When a requirement is uncertain:121. Implement the least harmful reversible option.132. Label it as a prototype assumption.143. Add it to ASSUMPTIONS.md or OPEN_QUESTIONS.md.154. Keep the rule configurable.16 17Prefer established DPS, MoJ and GOV.UK patterns over bespoke components.18 19Use semantic HTML before adding ARIA.20 21Do not use AI to score, rank or predict prisoner behaviour.22 23Do not introduce real personal data.24 25Do not implement silent state changes.26 27Every significant state change must create a visible audit event.28 29Keep calculations in tested domain functions rather than UI components.30 31After each feature:321. Run relevant tests.332. Check keyboard operation.343. Check error handling.354. Review at 200 percent zoom.365. Update documentation.Show more lines
+Key assumptions requiring validation
+The prototype should explicitly flag these points:
+
+The exact policy formula for generating the monthly list and reserve list.
+Whether the allocation is monthly, annual or represented through another reporting period.
+The authoritative list of reasons a random selection cannot be completed.
+When a reserve must or may be used.
+Whether reserve order is predetermined.
+How rolled-over records affect monthly statistics.
+How attempted, completed and valid tests are defined.
+How inconclusive and rejected samples affect reporting.
+Whether a month can be closed with outstanding results.
+What information must be entered into NOMIS.
+What information must be included in a case note.
+The required workflow for placing a prisoner on report.
+The status of the digital record as legal evidence.
+Retention, archival and deletion requirements.
+Required roles and access controls.
+Whether the MDT officer may amend incorrect information and how corrections must be recorded.
+How prisoners who transfer between establishments are handled.
+Whether lists may be regenerated and how a reset is authorised.
+What establishment-level or national reports are required.
+Which local variations are legitimate and which should be standardised.
