@@ -187,6 +187,39 @@
 
   function navigate(path) { window.location.hash = path; }
 
+  /**
+   * "Start over" is deliberately subtle — a plain link inside the prototype
+   * phase banner — so participants don't ask about it during research sessions.
+   * Only shown while viewing a month's editable workspace (renderTabView).
+   */
+  function updatePhaseBannerStartOver(monthId) {
+    const container = $('.govuk-phase-banner__content');
+    if (!container) return;
+    let link = container.querySelector('#phase-banner-start-over');
+    const month = monthId ? D.monthFor(state, monthId) : null;
+    if (!month) {
+      if (link) link.remove();
+      return;
+    }
+    if (!link) {
+      link = document.createElement('a');
+      link.id = 'phase-banner-start-over';
+      link.href = '#';
+      link.className = 'govuk-link govuk-!-margin-left-3 mdt-phase-banner__start-over';
+      container.appendChild(link);
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const m = D.monthFor(state, link.dataset.monthId);
+        if (!m) return;
+        if (window.confirm(`Start this month over? This clears all lists and any recorded activity for ${m.label}. Fictional data only.`)) {
+          actionResetCurrentMonth({ monthId: link.dataset.monthId }, {});
+        }
+      });
+    }
+    link.dataset.monthId = monthId;
+    link.textContent = 'Start over';
+  }
+
   function render() {
     const path = currentPath();
     const match = matchRoute(path);
@@ -199,13 +232,15 @@
         <h1 class="govuk-heading-xl">Page not found</h1>
         <p class="govuk-body">The path <code>${escape(path)}</code> is not a valid route.</p>
         <p class="govuk-body"><a class="govuk-link" href="#/">Return to the MDT service homepage</a>.</p>`;
+      updatePhaseBannerStartOver(null);
       return;
     }
     try {
-      const { title, breadcrumbs: crumbs, html } = match.handler(match.params, state);
+      const { title, breadcrumbs: crumbs, html, startOverMonthId } = match.handler(match.params, state);
       document.title = title + ' — MDT prototype';
       bc.innerHTML = crumbs ? breadcrumbs(crumbs) : '';
       root.innerHTML = html;
+      updatePhaseBannerStartOver(startOverMonthId || null);
       // move focus to h1 or error summary after navigation
       const errSummary = root.querySelector('.govuk-error-summary');
       if (errSummary) errSummary.focus();
@@ -265,16 +300,16 @@
     }
     const est = state.establishment;
     const defaultRandomSize = Math.min(month.allocatedTests, state.prisoners.length);
-    const defaultReserveSize = D.calculateReserveSize(defaultRandomSize, est.reservePercentDefault);
-    // The officer can adjust the proposed sizes before generating; clamp to sane bounds.
-    const requestedRandomSize = parseInt(data.randomSize, 10);
-    const requestedReserveSize = parseInt(data.reserveSize, 10);
-    const randomSize = Number.isFinite(requestedRandomSize) && requestedRandomSize > 0
-      ? Math.min(requestedRandomSize, state.prisoners.length)
+    // The officer can adjust the proposed random list size (as a % of population) and reserve percentage before generating; clamp to sane bounds.
+    const requestedRandomPercent = parseInt(data.randomSize, 10);
+    const requestedReservePercent = parseInt(data.reserveSize, 10);
+    const randomSize = Number.isFinite(requestedRandomPercent) && requestedRandomPercent > 0
+      ? Math.min(Math.ceil((est.avgPopulation30Days * requestedRandomPercent) / 100), state.prisoners.length)
       : defaultRandomSize;
-    const reserveSize = Number.isFinite(requestedReserveSize) && requestedReserveSize >= 0
-      ? Math.min(requestedReserveSize, state.prisoners.length - randomSize)
-      : Math.min(defaultReserveSize, state.prisoners.length - randomSize);
+    const reservePercent = Number.isFinite(requestedReservePercent) && requestedReservePercent >= 0
+      ? requestedReservePercent
+      : est.reservePercentDefault;
+    const reserveSize = Math.min(D.calculateReserveSize(randomSize, reservePercent), state.prisoners.length - randomSize);
     const shuffled = D.shuffle(state.prisoners.map(p => p.id));
     const randomIds = shuffled.slice(0, randomSize);
     const reserveIds = shuffled.slice(randomSize, randomSize + reserveSize);
@@ -771,23 +806,29 @@
     const outstanding = (report.figures.awaitingResults || 0) + (report.figures.positive || 0);
     if (!outstanding) return '';
 
+    const heading = `Outstanding tests from ${escape(previousMonth.label)} need attention`;
+
     return `
-      <div class="moj-alert moj-alert--info govuk-!-margin-bottom-6" role="status">
+      <div role="region" class="moj-alert moj-alert--information moj-alert--with-heading govuk-!-margin-bottom-6" aria-label="information: ${heading}" data-module="moj-alert">
+        <div>
+          <svg class="moj-alert__icon" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" height="30" width="30">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.2165 3.45151C11.733 2.82332 13.3585 2.5 15 2.5C16.6415 2.5 18.267 2.82332 19.7835 3.45151C21.3001 4.07969 22.6781 5.00043 23.8388 6.16117C24.9996 7.3219 25.9203 8.69989 26.5485 10.2165C27.1767 11.733 27.5 13.3585 27.5 15C27.5 18.3152 26.183 21.4946 23.8388 23.8388C21.4946 26.183 18.3152 27.5 15 27.5C13.3585 27.5 11.733 27.1767 10.2165 26.5485C8.69989 25.9203 7.3219 24.9996 6.16117 23.8388C3.81696 21.4946 2.5 18.3152 2.5 15C2.5 11.6848 3.81696 8.50537 6.16117 6.16117C7.3219 5.00043 8.69989 4.07969 10.2165 3.45151ZM16.3574 22.4121H13.6621V12.95H16.3574V22.4121ZM13.3789 9.20898C13.3789 8.98763 13.4212 8.7793 13.5059 8.58398C13.5905 8.38216 13.7044 8.20964 13.8477 8.06641C13.9974 7.91667 14.1699 7.79948 14.3652 7.71484C14.5605 7.63021 14.7721 7.58789 15 7.58789C15.2214 7.58789 15.4297 7.63021 15.625 7.71484C15.8268 7.79948 15.9993 7.91667 16.1426 8.06641C16.2923 8.20964 16.4095 8.38216 16.4941 8.58398C16.5788 8.7793 16.6211 8.98763 16.6211 9.20898C16.6211 9.43685 16.5788 9.64844 16.4941 9.84375C16.4095 10.0391 16.2923 10.2116 16.1426 10.3613C15.9993 10.5046 15.8268 10.6185 15.625 10.7031C15.4297 10.7878 15.2214 10.8301 15 10.8301C14.7721 10.8301 14.5605 10.7878 14.3652 10.7031C14.1699 10.6185 13.9974 10.5046 13.8477 10.3613C13.7044 10.2116 13.5905 10.0391 13.5059 9.84375C13.4212 9.64844 13.3789 9.43685 13.3789 9.20898Z" fill="currentColor" />
+          </svg>
+        </div>
         <div class="moj-alert__content">
-          <h2 class="govuk-heading-s govuk-!-margin-bottom-2">Outstanding tests from ${escape(previousMonth.label)} need attention</h2>
-          <p class="govuk-body govuk-!-margin-bottom-2">
-            There are ${outstanding} outstanding tests from ${escape(previousMonth.label)} that still need review before you continue.
-          </p>
-          <p class="govuk-body govuk-!-margin-bottom-0">
-            <a class="govuk-link" href="#/mdt/${escape(previousMonth.id)}/contained">Review the ${escape(previousMonth.label)} list</a>
-          </p>
+          <h2 class="moj-alert__heading">${heading}</h2>
+          There are ${outstanding} outstanding tests from ${escape(previousMonth.label)} that still need review before you continue. <a class="govuk-link" href="#/mdt/${escape(previousMonth.id)}">Review the ${escape(previousMonth.label)} list</a>.
+        </div>
+        <div class="moj-alert__action">
+          <button class="moj-alert__dismiss" hidden>Dismiss</button>
         </div>
       </div>`;
   }
 
   function renderMonthHistorySection(months, opts) {
     const showHeading = !(opts && opts.hideHeading);
-    const items = months.map(m => {
+    const sortedMonths = months.slice().sort((a, b) => b.month.localeCompare(a.month));
+    const items = sortedMonths.map(m => {
       const report = D.buildMonthlyReport(state, m.id);
       return `
         <li class="mdt-month-history-item">
@@ -795,12 +836,7 @@
             <h3 class="govuk-heading-s govuk-!-margin-bottom-2">${escape(m.label)}</h3>
             ${tag(monthStatusLabel(m.status), monthStatusModifier(m.status))}
           </div>
-          <div class="mdt-month-history-item__kpis">
-            <div class="mdt-month-history-kpi">
-              <p class="mdt-month-history-kpi__label">Tests completed</p>
-              <p class="mdt-month-history-kpi__value">${report.figures.completed}<span class="mdt-month-history-kpi__value--sub">of ${m.allocatedTests}</span></p>
-            </div>
-          </div>
+          <p class="govuk-body govuk-!-margin-bottom-2">Tests completed: ${report.figures.completed} of ${m.allocatedTests}</p>
           <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-0">
             <a class="govuk-link" href="#/mdt/${escape(m.id)}/contained">View ${escape(m.label)}</a>
           </p>
@@ -818,8 +854,6 @@
   function renderGenerateView(month, opts) {
     const est = state.establishment;
     const percent = est.avgPopulation30Days >= 400 ? 5 : 10;
-    const randomSize = Math.min(month.allocatedTests, state.prisoners.length);
-    const reserveSize = D.calculateReserveSize(randomSize, est.reservePercentDefault);
     return {
       title: `Generate the random list for ${month.label}`,
       breadcrumbs: opts.isHome
@@ -831,13 +865,8 @@
 
         ${renderOutstandingIssueAlert(month)}
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-6">Calculation details</h2>
-        <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">Average population of ${escape(est.name)} (last 30 days)</dt>
-            <dd class="govuk-summary-list__value">${est.avgPopulation30Days}</dd>
-          </div>
-        </dl>
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Average population of ${escape(est.name)} over the last 30 days</h3>
+        <p class="mdt-big-number">${est.avgPopulation30Days}</p>
 
         <form data-form-action="generate-lists" data-month-id="${escape(month.id)}" class="govuk-!-margin-top-4" novalidate>
           <input type="hidden" name="monthId" value="${escape(month.id)}" />
@@ -845,13 +874,19 @@
           <div class="govuk-form-group">
             <label class="govuk-label govuk-label--m" for="field-random-size">Select random list size</label>
             <div class="govuk-hint">The policy rule for a prison this size is to select ${percent}% of the prison population.</div>
-            <input class="govuk-input govuk-input--width-5" id="field-random-size" name="randomSize" type="number" inputmode="numeric" min="1" max="${state.prisoners.length}" value="${randomSize}">
+            <div class="govuk-input__wrapper">
+              <input class="govuk-input govuk-input--width-5" id="field-random-size" name="randomSize" type="text" inputmode="numeric" spellcheck="false" value="${percent}">
+              <div class="govuk-input__suffix" aria-hidden="true">%</div>
+            </div>
           </div>
 
           <div class="govuk-form-group">
             <label class="govuk-label govuk-label--m" for="field-reserve-size">Select reserve list size</label>
             <div class="govuk-hint">The reserve list is typically ${est.reservePercentDefault}% of the size of the main random list.</div>
-            <input class="govuk-input govuk-input--width-5" id="field-reserve-size" name="reserveSize" type="number" inputmode="numeric" min="0" max="${state.prisoners.length}" value="${reserveSize}">
+            <div class="govuk-input__wrapper">
+              <input class="govuk-input govuk-input--width-5" id="field-reserve-size" name="reserveSize" type="text" inputmode="numeric" spellcheck="false" value="${est.reservePercentDefault}">
+              <div class="govuk-input__suffix" aria-hidden="true">%</div>
+            </div>
           </div>
 
           <button type="submit" class="govuk-button govuk-!-margin-top-2" data-module="govuk-button">Generate list</button>
@@ -880,6 +915,7 @@
       breadcrumbs: opts.isHome
         ? [{ text: 'Digital Prison Services' }, { text: 'Mandatory Drug Testing' }]
         : [{ href: '#/', text: 'MDT' }, { text: month.label }],
+      startOverMonthId: month.id,
       html: `
         <div class="mdt-workspace-header">
           <div>
@@ -891,16 +927,9 @@
           </div>
           <div class="mdt-workspace-header__actions">
             <a class="govuk-link" href="#/mdt/previous-months">View previous months</a>
-            <a class="govuk-link" href="#/mdt/${escape(month.id)}/report">Monthly report</a>
             <button type="button" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-mdt-print="${escape(month.id)}">
               Print testing list
             </button>
-            <form data-form-action="reset-current-month" style="display:inline;">
-              <input type="hidden" name="monthId" value="${escape(month.id)}" />
-              <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-mdt-confirm="Start this month over? This clears all lists and any recorded activity for ${escape(month.label)}. Fictional data only.">
-                Start over
-              </button>
-            </form>
           </div>
         </div>
 
@@ -1011,21 +1040,23 @@
       return `
         <tr>
           <td>${s.listPosition}</td>
-          <td>${escape(p.displayName)}</td>
-          <td>${escape(p.prisonNumber)}</td>
+          <td>${escape(p.displayName)}<br>${escape(p.prisonNumber)}</td>
           <td>${escape(p.location)}</td>
         </tr>`;
     }).join('');
     const table = (title, items) => `
       <h2>${escape(title)}</h2>
       <table>
-        <thead><tr><th>Position</th><th>Prisoner</th><th>Prison number</th><th>Location</th></tr></thead>
+        <thead><tr><th>Position</th><th>Prisoner</th><th>Location</th></tr></thead>
         <tbody>${rowsFor(items)}</tbody>
       </table>`;
     return `
       <div class="mdt-print-only">
-        <h1>${escape(state.establishment.name)} — ${escape(month.label)} testing list</h1>
-        <p>List reference: ${escape(month.id)}. Generated ${month.randomListGeneratedAt ? escape(formatDateTime(month.randomListGeneratedAt)) : 'not yet generated'}.</p>
+        <div class="mdt-print-header">
+          <p class="mdt-print-header__tag">Official</p>
+          <h1>${escape(state.establishment.name)} — ${escape(month.label)} testing list</h1>
+          <p class="mdt-print-meta">List reference: ${escape(month.id)}. Generated ${month.randomListGeneratedAt ? escape(formatDateTime(month.randomListGeneratedAt)) : 'not yet generated'}.</p>
+        </div>
         ${table('Random list', rand)}
         <div class="mdt-print-pagebreak"></div>
         ${table('Reserve list', rsv)}
@@ -1053,12 +1084,11 @@
         ${statTile('Tested on weekend', weekend.percent == null ? '—' : `${weekend.percent}%`, 'target 14%', (weekend.percent != null && weekend.percent > 14) ? 'warning' : null)}
       </ul>
       <div class="mdt-list-toolbar">
-        <div class="govuk-form-group govuk-!-margin-bottom-0 mdt-search-two-thirds">
+        <div class="govuk-form-group govuk-!-margin-bottom-0 mdt-search-wide">
           <label class="govuk-label" for="mdt-search-random">Search by name or prison number</label>
           <input class="govuk-input" id="mdt-search-random" type="search" data-mdt-search="random-tbody" autocomplete="off" />
         </div>
       </div>
-      <p class="govuk-body-s govuk-!-margin-top-4" data-mdt-count-for="random-tbody">${rowsForCounts.length} prisoners</p>
       ${renderSelectionTable(items, month, 'random', { activatedReserves, simplified })}`;
   }
 
@@ -1139,17 +1169,15 @@
       const status = D.statusLabel(sel);
       const lastTested = lastTestedFor(sel.id);
       const releasingThisMonth = D.isReleasingInMonth(p.releaseDate, monthYYYYMM);
-      const nameSuffix = isActivatedReserve
-        ? `<div><span class="mdt-reserve-flag">Added from reserve list</span></div>`
-        : (listType === 'random' && sel.replacementSelectionId
-            ? `<div><span class="mdt-reserve-link">Replaced by a reserve</span></div>`
-            : '');
       const searchKey = `${p.displayName} ${p.prisonNumber} ${p.location}`.toLowerCase();
-      const canRecord = sel.status === 'not-started' || sel.status === 'attempt-required';
+      const canRecord = sel.status === 'not-started' || sel.status === 'attempt-required' || sel.status === 'sample-collected';
       const alreadyTested = sel.status === 'completed' || (sel.status === 'exception' && (sel.exceptionReason || '').toLowerCase() === 'refused');
       let actionCell;
       if (listType === 'reserve') {
         actionCell = '';
+      } else if (sel.replacementSelectionId) {
+        // Exception with a reserve already covering it — nothing further to open.
+        actionCell = '<span class="govuk-body-s govuk-!-margin-0">Replaced by a reserve</span>';
       } else if (alreadyTested) {
         actionCell = '<span class="govuk-body-s govuk-!-margin-0">Already tested</span>';
       } else if (canRecord) {
@@ -1164,6 +1192,14 @@
             : { text: 'Not activated as reserve', modifier: 'grey' })
         : status;
 
+      if (!simplified && (sel.status === 'attempt-required' || sel.status === 'sample-collected')) {
+        statusForRow = { text: 'Not started', modifier: 'grey' };
+      }
+
+      if (isActivatedReserve && statusForRow.text === 'Not started') {
+        statusForRow = { text: 'Not started – moved from reserve list', modifier: 'purple' };
+      }
+
       if (simplified && listType === 'random') {
         // Previous months are closed: a collected sample is effectively a
         // completed test, so only ever show "Tested" or "Exception: X".
@@ -1175,15 +1211,14 @@
       return `
         <tr class="govuk-table__row" data-search="${escape(searchKey)}">
           <td class="govuk-table__cell" data-sort-value="${escape(p.displayName)}">
-            <a class="govuk-link" href="#/mdt/${escape(month.id)}/selection/${escape(sel.id)}">${escape(p.displayName)}</a>
-            ${nameSuffix}
+            <a class="govuk-link" href="#/mdt/${escape(month.id)}/selection/${escape(sel.id)}">${escape(p.displayName)}</a><br><span class="govuk-hint govuk-!-font-size-16">${escape(p.prisonNumber)}</span>
           </td>
-          <td class="govuk-table__cell" data-sort-value="${escape(p.prisonNumber)}">${escape(p.prisonNumber)}</td>
           <td class="govuk-table__cell" data-sort-value="${escape(p.location)}">${escape(p.location)}</td>
           <td class="govuk-table__cell" data-sort-value="${escape(p.releaseDate || '')}">
             ${formatDate(p.releaseDate)}
-            ${releasingThisMonth ? `<div><span class="mdt-releasing-flag">Releasing this month</span></div>` : ''}
+            ${releasingThisMonth ? `<div><strong class="govuk-tag govuk-tag--orange">Releasing this month</strong></div>` : ''}
           </td>
+          ${simplified ? `<td class="govuk-table__cell" data-sort-value="${escape(isActivatedReserve ? 'Reserve list' : 'Random list')}">${isActivatedReserve ? 'Reserve list' : 'Random list'}</td>` : ''}
           <td class="govuk-table__cell" data-sort-value="${escape(statusForRow.text)}">${tag(statusForRow.text, statusForRow.modifier)}</td>
           ${simplified ? '' : `<td class="govuk-table__cell govuk-!-font-size-16" data-sort-value="${escape(lastTested || '')}">${lastTested ? formatDateTime(lastTested) : 'Not tested before'}</td>`}
           ${(listType === 'reserve' || simplified) ? '' : `<td class="govuk-table__cell">${actionCell}</td>`}
@@ -1195,9 +1230,9 @@
 
     const headers = [
       { key: 'name',      label: 'Prisoner' },
-      { key: 'number',    label: 'Prison no.' },
       { key: 'location',  label: 'Location' },
       { key: 'release',   label: 'Release date (CRD)' },
+      ...(simplified ? [{ key: 'originalList', label: 'Original list' }] : []),
       { key: 'status',    label: 'Status' },
       ...(simplified ? [] : [{ key: 'tested', label: 'Last tested' }])
     ].map((h, i) => `
@@ -1424,11 +1459,11 @@
       ],
       html: `
         <span class="govuk-caption-xl">${escape(sel.listType === 'random' ? 'Random list' : 'Reserve list')}, position ${sel.listPosition}</span>
-        <h1 class="govuk-heading-xl">${escape(p.displayName)}</h1>
-        <p class="govuk-body">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">
+          ${escape(p.displayName)}
           ${tag(status.text, status.modifier)}
-          ${priority.code !== 'standard' ? `<span class="mdt-priority mdt-priority--${priority.code}" title="${escape(priority.reason)}">${escape(priority.label)}</span>` : ''}
-        </p>
+        </h1>
+        ${priority.code !== 'standard' ? `<p class="govuk-body"><span class="mdt-priority mdt-priority--${priority.code}" title="${escape(priority.reason)}">${escape(priority.label)}</span></p>` : ''}
 
         ${linked ? `
         <div class="mdt-selection-summary govuk-!-margin-bottom-4">
@@ -1442,13 +1477,12 @@
           </dl>
         </div>` : ''}
 
-        <p class="govuk-body">
+        <p class="govuk-body govuk-!-margin-bottom-1">
+          <a class="govuk-link" href="#">View prisoner profile</a>
+        </p>
+        <p class="govuk-body govuk-!-margin-bottom-6">
           <span class="govuk-!-font-weight-bold">Current activity today:</span> ${escape(p.currentActivity || 'No activity scheduled')}
         </p>
-
-        ${alreadyTested
-          ? `<p class="govuk-body govuk-!-font-weight-bold">Already tested</p>`
-          : (primary ? `<p class="govuk-body"><a class="govuk-button" data-module="govuk-button" href="${escape(primary.href)}">${escape(primary.label)}</a></p>` : '')}
 
         <div class="govuk-tabs" data-module="govuk-tabs">
           <h2 class="govuk-tabs__title">Contents</h2>
@@ -1500,7 +1534,7 @@
                 <tbody class="govuk-table__body">
                   ${history.map(h => `
                     <tr class="govuk-table__row">
-                      <td class="govuk-table__cell">${h.date ? formatDateTime(h.date) : '(not tested yet)'}</td>
+                      <td class="govuk-table__cell">${h.date ? formatDateTime(h.date) : 'Not tested yet'}</td>
                       <td class="govuk-table__cell">${escape(h.monthLabel)}</td>
                       <td class="govuk-table__cell">${tag(h.label, h.modifier)}</td>
                     </tr>`).join('')}
@@ -1508,6 +1542,10 @@
               </table>`}
           </div>
         </div>
+
+        ${alreadyTested
+          ? `<p class="govuk-body govuk-!-font-weight-bold">Already tested</p>`
+          : (primary ? `<p class="govuk-body"><a class="govuk-button" data-module="govuk-button" href="${escape(primary.href)}">${escape(primary.label)}</a></p>` : '')}
       `
     };
   });
@@ -1522,19 +1560,20 @@
       .filter(s => s.prisonerId === prisonerId)
       .map(s => {
         const month = D.monthFor(state, s.reportingMonthId);
+        const sortKey = month ? month.month : '';
         if (s.status === 'completed') {
-          return { date: lastTestedFor(s.id), label: 'Tested', modifier: 'green', monthLabel: month ? month.label : '' };
+          return { date: lastTestedFor(s.id), label: 'Tested', modifier: 'green', monthLabel: month ? month.label : '', sortKey };
         }
         if (s.status === 'exception' && (s.exceptionReason || '').toLowerCase() === 'refused') {
-          return { date: lastTestedFor(s.id), label: 'Refused test', modifier: 'red', monthLabel: month ? month.label : '' };
+          return { date: lastTestedFor(s.id), label: 'Refused test', modifier: 'red', monthLabel: month ? month.label : '', sortKey };
         }
         if (cm && s.reportingMonthId === cm.id) {
-          return { date: null, label: 'Not started', modifier: 'grey', monthLabel: '(Current month)' };
+          return { date: null, label: 'Not started', modifier: 'grey', monthLabel: 'Current month', sortKey };
         }
         return null;
       })
       .filter(Boolean)
-      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      .sort((a, b) => b.sortKey.localeCompare(a.sortKey) || (b.date || '').localeCompare(a.date || ''));
   }
 
   function renderSamples(samples) {

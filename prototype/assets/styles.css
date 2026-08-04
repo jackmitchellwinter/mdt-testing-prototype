@@ -44,7 +44,6 @@
 .mdt-list-toolbar *,
 .mdt-selection-table,
 .mdt-selection-table *,
-.mdt-releasing-flag,
 .mdt-sort-btn,
 .mdt-research__panel,
 .mdt-research__panel *,
@@ -255,12 +254,15 @@
 
 .mdt-month-history-list {
   margin-top: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 15px;
 }
 
 .mdt-month-history-item {
   border: 1px solid #b1b4b6;
   padding: 16px 20px;
-  margin-bottom: 15px;
+  margin-bottom: 0;
   background: #ffffff;
 }
 
@@ -314,17 +316,95 @@
 }
 
 .moj-alert {
-  border-left: 4px solid #1d70b8;
-  background: #f3f2f1;
-  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.3157894737;
 }
 
-.moj-alert--info {
-  border-left-color: #1d70b8;
+.moj-alert > div:first-child {
+  flex-shrink: 0;
+  margin-right: 20px;
 }
 
-.moj-alert__content p:last-child {
+.moj-alert__icon {
+  display: block;
+}
+
+.moj-alert__content {
+  flex-grow: 1;
+  align-self: center;
+}
+
+.moj-alert__content > *:last-child {
   margin-bottom: 0;
+}
+
+.moj-alert__heading {
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.0416666667;
+}
+
+.moj-alert__action {
+  flex-shrink: 0;
+  margin-left: 20px;
+  align-self: center;
+}
+
+.moj-alert__dismiss {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 19px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.moj-alert__dismiss[hidden] {
+  display: none;
+}
+
+.moj-alert--information {
+  background: #d2e2f1;
+  color: #0b0c0c;
+}
+
+.moj-alert--information .moj-alert__icon {
+  color: #1d70b8;
+}
+
+.moj-alert--success {
+  background: #cce2d8;
+  color: #0b0c0c;
+}
+
+.moj-alert--success .moj-alert__icon {
+  color: #00703c;
+}
+
+.moj-alert--warning {
+  background: #fff7bf;
+  color: #0b0c0c;
+}
+
+.moj-alert--warning .moj-alert__icon {
+  color: #594d00;
+}
+
+.moj-alert--error {
+  background: #f6d7d2;
+  color: #0b0c0c;
+}
+
+.moj-alert--error .moj-alert__icon {
+  color: #d4351c;
 }
 
 /* Ensure focus outline is visible on all interactive elements at 200% zoom */
@@ -451,18 +531,6 @@
   font-size: inherit;
 }
 
-.mdt-releasing-flag {
-  display: inline-block;
-  background: #fff2d3;
-  color: #594d00;
-  border: 1px solid #f0d878;
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 14px;
-  font-weight: 700;
-  margin-top: 4px;
-}
-
 .mdt-selection-table th.govuk-table__header {
   padding-top: 12px;
   padding-bottom: 12px;
@@ -490,10 +558,32 @@
   font-family: "GDS Transport", arial, sans-serif;
 }
 
-/* Search box widened to 2/3 of the available width (Generated list / previous month pages). */
-.mdt-search-two-thirds .govuk-input {
-  max-width: 66.66%;
+/* Search box, widened so a full name fits comfortably (Generated list / previous month pages). */
+.mdt-search-wide .govuk-input {
+  max-width: 100%;
   width: 100%;
+}
+@media (min-width: 641px) {
+  .mdt-search-wide .govuk-input {
+    max-width: 500px;
+  }
+}
+
+/* Big value shown under the average population heading (Generate random list page). */
+.mdt-big-number {
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 30px;
+}
+
+/* Subtle "Start over" link injected into the phase banner (Generated list page). */
+.mdt-phase-banner__start-over {
+  color: #fff;
+}
+.mdt-phase-banner__start-over:visited {
+  color: #fff;
 }
 
 /* Manual tab panel hide/show — no GOV.UK Frontend JS bundle is loaded in this prototype. */
@@ -504,6 +594,9 @@
 /* ---- Print: testing list (random + reserve, as originally generated) ---- */
 .mdt-print-only {
   display: none;
+}
+@page {
+  size: landscape;
 }
 @media print {
   body * {
@@ -519,6 +612,40 @@
     top: 0;
     left: 0;
     width: 100%;
+    font-family: "GDS Transport", arial, sans-serif;
+    color: #0b0c0c;
+  }
+  .mdt-print-header {
+    border-bottom: 4px solid #1d70b8;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+  .mdt-print-header__tag {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 10pt;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #1d70b8;
+    border: 1px solid #1d70b8;
+    padding: 2px 8px;
+    margin: 0 0 8px;
+  }
+  .mdt-print-only h1 {
+    font-size: 22pt;
+    margin: 0 0 4px;
+  }
+  .mdt-print-meta {
+    font-size: 11pt;
+    color: #505a5f;
+    margin: 0;
+  }
+  .mdt-print-only h2 {
+    font-size: 16pt;
+    color: #1d70b8;
+    border-bottom: 2px solid #b1b4b6;
+    padding-bottom: 4px;
+    margin: 20px 0 10px;
   }
   .mdt-print-only table {
     width: 100%;
@@ -532,11 +659,18 @@
     text-align: left;
     font-size: 12pt;
   }
+  .mdt-print-only thead th {
+    background: #1d70b8;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 10pt;
+    letter-spacing: 0.5px;
+  }
+  .mdt-print-only tbody tr:nth-child(even) {
+    background: #f3f2f1;
+  }
   .mdt-print-pagebreak {
     break-before: page;
     page-break-before: always;
-  }
-  @page {
-    size: landscape;
   }
 }

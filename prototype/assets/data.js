@@ -34,9 +34,89 @@
     { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Angel Changretta', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, releaseDate: '2027-09-16' }
   ];
 
-  // Four reporting months: two closed, one closed-and-previous, one current (not yet generated).
-  // The prototype's "today" is 30 July 2026 — August 2026 is the month about to be generated.
+  /* Ten extra closed months (2025-07 to 2026-04) so "previous months" has a realistic amount
+     of history. Most prisoners are tested each month, but a handful of exceptions (and a
+     reserve stepping in to cover one of them) are scattered through the run so the history
+     doesn't look artificially perfect. */
+  const extraMonthDefs = [
+    { month: '2025-07', label: 'July 2025' },
+    { month: '2025-08', label: 'August 2025' },
+    { month: '2025-09', label: 'September 2025' },
+    { month: '2025-10', label: 'October 2025' },
+    { month: '2025-11', label: 'November 2025' },
+    { month: '2025-12', label: 'December 2025' },
+    { month: '2026-01', label: 'January 2026' },
+    { month: '2026-02', label: 'February 2026' },
+    { month: '2026-03', label: 'March 2026' },
+    { month: '2026-04', label: 'April 2026' }
+  ];
+
+  const extraReportingMonths = extraMonthDefs.map((def, mi) => ({
+    id: `m-${def.month}`,
+    month: def.month,
+    label: def.label,
+    establishmentId: 'est-1',
+    allocatedTests: 10,
+    status: 'closed',
+    randomListGeneratedAt: `${def.month}-01T08:${String(10 + mi).padStart(2, '0')}:00Z`,
+    reserveListGeneratedAt: `${def.month}-01T08:${String(10 + mi).padStart(2, '0')}:00Z`,
+    generatedBy: 'Officer J. Marston (fictional)',
+    populationAtGeneration: 290 + ((mi * 3) % 20),
+    percentageRequested: 10,
+    reserveListSize: 5,
+    selectionReference: `SEED-${def.month.replace('-', '')}-LH-0${100 + mi}`
+  }));
+
+  let extraSelections = [];
+  extraReportingMonths.forEach((m, mi) => {
+    const monthKey = m.id.replace('m-', '');
+    const offset = mi * 3;
+    const randomIds = Array.from({ length: 10 }, (_, i) => prisoners[(offset + i * 2) % prisoners.length].id);
+    const reserveIds = Array.from({ length: 5 }, (_, i) => prisoners[(offset + 10 + i * 2) % prisoners.length].id);
+
+    // A couple of months have no exceptions at all; others have one or two prisoners not tested.
+    const exceptionSlots = mi % 4 === 0 ? [2, 7] : (mi % 3 === 0 ? [4] : []);
+
+    const monthRandom = randomIds.map((pid, i) => {
+      const isException = exceptionSlots.includes(i);
+      return {
+        id: `s-${monthKey}-r-${i + 1}`,
+        reportingMonthId: m.id,
+        prisonerId: pid,
+        listType: 'random',
+        listPosition: i + 1,
+        status: isException ? 'exception' : 'completed',
+        ...(isException ? { exceptionReason: i === 2 ? 'Refused' : 'Released' } : {})
+      };
+    });
+
+    const monthReserve = reserveIds.map((pid, i) => ({
+      id: `s-${monthKey}-x-${i + 1}`,
+      reportingMonthId: m.id,
+      prisonerId: pid,
+      listType: 'reserve',
+      listPosition: i + 1,
+      status: 'not-started'
+    }));
+
+    // Most months where a prisoner had an exception, a reserve was activated to cover it —
+    // showing up in the "Original list" column as someone pulled from the reserve list.
+    if (exceptionSlots.length && mi % 3 !== 1) {
+      const original = monthRandom[exceptionSlots[0]];
+      const reserve = monthReserve[0];
+      reserve.status = 'completed';
+      reserve.originalSelectionId = original.id;
+      original.replacementSelectionId = reserve.id;
+    }
+
+    extraSelections = extraSelections.concat(monthRandom, monthReserve);
+  });
+
+  // Fourteen reporting months in total: ten extra closed months, three closed months and the
+  // current (not yet generated) month. The prototype's "today" is 30 July 2026 — August 2026
+  // is the month about to be generated.
   const reportingMonths = [
+    ...extraReportingMonths,
     { id: 'm-2026-05', month: '2026-05', label: 'May 2026',  establishmentId: 'est-1', allocatedTests: 10, status: 'closed', randomListGeneratedAt: '2026-05-01T08:15:00Z', reserveListGeneratedAt: '2026-05-01T08:15:00Z',
       generatedBy: 'Officer J. Marston (fictional)', populationAtGeneration: 298, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-05-LH-0142' },
     { id: 'm-2026-06', month: '2026-06', label: 'June 2026', establishmentId: 'est-1', allocatedTests: 10, status: 'closed', randomListGeneratedAt: '2026-06-01T08:22:00Z', reserveListGeneratedAt: '2026-06-01T08:22:00Z',
@@ -125,6 +205,7 @@
   }));
 
   const selections = [
+    ...extraSelections,
     ...currentRandom, ...currentReserve,
     ...previousRandom, ...previousReserve,
     ...closedRandom, ...closedReserve
