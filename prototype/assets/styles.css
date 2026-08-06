@@ -398,6 +398,75 @@
   color: #594d00;
 }
 
+/* ---- DPS header extras (DEV tag, account, menu, search) --------------- */
+.mdt-dps-header__dev-tag {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.govuk-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mdt-dps-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.mdt-dps-header__search {
+  background: #1d70b8;
+  border: 0;
+  color: #ffffff;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* ---- DPS homepage ------------------------------------------------------ */
+.mdt-dps-welcome {
+  background: #d2e2f1;
+  padding: 25px 30px;
+  margin-bottom: 0;
+}
+
+.mdt-dps-search {
+  background: #f3f2f1;
+  padding: 25px 30px 20px;
+  margin-bottom: 30px;
+}
+
+.mdt-dps-search__button {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 5px;
+}
+
+.mdt-service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 30px;
+  margin-bottom: 20px;
+}
+
+.mdt-service-card {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .mdt-service-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 .moj-alert--error {
   background: #f6d7d2;
   color: #0b0c0c;

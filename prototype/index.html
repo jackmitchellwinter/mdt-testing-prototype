@@ -11,7 +11,7 @@
       rel="stylesheet"
       href="https://unpkg.com/govuk-frontend@5.7.1/dist/govuk/govuk-frontend.min.css"
     />
-    <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="stylesheet" href="assets/styles.css?v=11" />
   </head>
   <body class="govuk-template__body">
     <script>
@@ -26,11 +26,19 @@
           <a href="#/" class="govuk-header__link govuk-header__link--homepage">
             <span class="govuk-header__logotype-text">Digital Prison Services</span>
           </a>
+          <span class="govuk-tag mdt-dps-header__dev-tag">DEV</span>
         </div>
         <div class="govuk-header__content">
-          <a href="#/" class="govuk-header__link govuk-header__service-name">
+          <a href="#/mdt" id="header-service-name" class="govuk-header__link govuk-header__service-name">
             Mandatory Drug Testing
           </a>
+          <div class="mdt-dps-header__actions">
+            <span class="mdt-dps-header__account">M. Test</span>
+            <span class="mdt-dps-header__menu">Menu</span>
+            <button type="button" class="mdt-dps-header__search" aria-label="Search">
+              <span aria-hidden="true">&#128269;</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -91,8 +99,8 @@
       </div>
     </footer>
 
-    <script src="assets/data.js"></script>
-    <script src="assets/domain.js"></script>
-    <script src="assets/app.js"></script>
+    <script src="assets/data.js?v=11"></script>
+    <script src="assets/domain.js?v=11"></script>
+    <script src="assets/app.js?v=11"></script>
   </body>
 </html>

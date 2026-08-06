@@ -50,7 +50,8 @@ All six scenarios from the brief work end-to-end:
 ## Routes
 
 ```
-#/                                     Service homepage
+#/                                     Digital Prison Services homepage
+#/mdt                                  MDT service landing page (current month workspace)
 #/mdt/:monthId                         Monthly overview
 #/mdt/:monthId/random-list             Random list
 #/mdt/:monthId/reserve-list            Reserve list

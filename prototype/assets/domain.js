@@ -220,6 +220,7 @@
     const reservesUsed = rsv.filter(r => r.originalSelectionId);
     const attempted    = rand.filter(r => r.status !== 'not-started');
     const completed    = rand.filter(r => r.status === 'completed');
+    const completedReserve = rsv.filter(r => r.status === 'completed');
     const notCompleted = rand.filter(r => r.status === 'exception');
     const collectedSelections = [...rand, ...rsv].filter(s => s.status === 'sample-collected' || s.status === 'completed');
     const awaiting = collectedSelections.filter(s => {
@@ -255,6 +256,7 @@
         reservesUsed: reservesUsed.length,
         attempted: attempted.length,
         completed: completed.length,
+        completedReserve: completedReserve.length,
         notCompleted: notCompleted.length,
         awaitingResults: awaiting.length,
         positive: positive.length,
