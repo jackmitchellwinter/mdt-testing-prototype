@@ -313,13 +313,27 @@
     // The officer can adjust the proposed random list size (as a % of population) and reserve percentage before generating; clamp to sane bounds.
     const requestedRandomPercent = parseInt(data.randomSize, 10);
     const requestedReservePercent = parseInt(data.reserveSize, 10);
-    const randomSize = Number.isFinite(requestedRandomPercent) && requestedRandomPercent > 0
-      ? Math.min(Math.ceil((est.avgPopulation30Days * requestedRandomPercent) / 100), state.prisoners.length)
+    const desiredRandomSize = Number.isFinite(requestedRandomPercent) && requestedRandomPercent > 0
+      ? Math.ceil((est.avgPopulation30Days * requestedRandomPercent) / 100)
       : defaultRandomSize;
     const reservePercent = Number.isFinite(requestedReservePercent) && requestedReservePercent >= 0
       ? requestedReservePercent
       : est.reservePercentDefault;
-    const reserveSize = Math.min(D.calculateReserveSize(randomSize, reservePercent), state.prisoners.length - randomSize);
+    const desiredReserveSize = D.calculateReserveSize(desiredRandomSize, reservePercent);
+    // The prototype only has a fixed pool of named prisoners to draw from. If the requested
+    // random + reserve counts (based on the real establishment population) exceed that pool,
+    // scale both down proportionally rather than letting the random list swallow every prisoner
+    // and leave nothing for the reserve list.
+    const availablePool = state.prisoners.length;
+    const desiredTotal = desiredRandomSize + desiredReserveSize;
+    let randomSize = desiredRandomSize;
+    let reserveSize = desiredReserveSize;
+    if (desiredTotal > availablePool) {
+      randomSize = Math.max(1, Math.min(desiredRandomSize, Math.round((availablePool * desiredRandomSize) / desiredTotal)));
+      reserveSize = Math.max(desiredReserveSize > 0 ? 1 : 0, availablePool - randomSize);
+    }
+    randomSize = Math.min(randomSize, availablePool);
+    reserveSize = Math.min(reserveSize, availablePool - randomSize);
     const shuffled = D.shuffle(state.prisoners.map(p => p.id));
     const randomIds = shuffled.slice(0, randomSize);
     const reserveIds = shuffled.slice(randomSize, randomSize + reserveSize);
@@ -731,7 +745,7 @@
     { name: 'Check my diary', href: '#', description: 'View your prison staff detail (staff rota) from home.' },
     { name: 'CSIP', href: '#', description: 'View and manage the Challenge, Support and Intervention Plan (CSIP) caseload.' },
     { name: 'Establishment roll check', href: '#', description: 'View the roll broken down by residential unit and see who is arriving and leaving.' },
-    { name: 'Mandatory Drug Testing', href: '#/mdt', description: 'Generate the random testing list, record test outcomes and manage follow-up actions.' }
+    { name: 'Mandatory drug testing', href: '#/mdt', description: 'Generate the random testing list, record test outcomes and manage follow-up actions.' }
   ];
 
   function renderDpsHome() {
@@ -790,7 +804,7 @@
     const months = state.reportingMonths.filter(m => m.id !== D.currentMonth(state).id);
     return {
       title: 'Previous months',
-      breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { text: 'Previous months' }],
+      breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { text: 'Previous months' }],
       html: `
         <h1 class="govuk-heading-xl">Previous months</h1>
         ${renderMonthHistorySection(months, { hideHeading: true })}
@@ -938,8 +952,8 @@
     return {
       title: `Generate the random list for ${month.label}`,
       breadcrumbs: opts.isHome
-        ? [{ href: '#/', text: 'Digital Prison Services' }, { text: 'Mandatory Drug Testing' }]
-        : [{ href: '#/mdt', text: 'MDT' }, { text: month.label }],
+        ? [{ href: '#/', text: 'Digital Prison Services' }, { text: 'Mandatory drug testing' }]
+        : [{ href: '#/mdt', text: 'Mandatory drug testing' }, { text: month.label }],
       html: `
         <span class="govuk-caption-xl">${escape(est.name)}</span>
         <h1 class="govuk-heading-xl">Generate the random list for ${escape(month.label)}</h1>
@@ -992,10 +1006,10 @@
     : '';
 
     return {
-      title: opts.isHome ? 'Mandatory Drug Testing' : `${month.label} — ${tabLabelFor(activeTab)}`,
+      title: opts.isHome ? 'Mandatory drug testing' : `${month.label} — ${tabLabelFor(activeTab)}`,
       breadcrumbs: opts.isHome
-        ? [{ href: '#/', text: 'Digital Prison Services' }, { text: 'Mandatory Drug Testing' }]
-        : [{ href: '#/mdt', text: 'MDT' }, { text: month.label }],
+        ? [{ href: '#/', text: 'Digital Prison Services' }, { text: 'Mandatory drug testing' }]
+        : [{ href: '#/mdt', text: 'Mandatory drug testing' }, { text: month.label }],
       startOverMonthId: month.id,
       html: `
         <div class="mdt-workspace-header">
@@ -1415,7 +1429,7 @@
 
     return {
       title: `Monthly report — ${month.label}`,
-      breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Monthly report' }],
+      breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Monthly report' }],
       html: `
         <h1 class="govuk-heading-xl">Monthly report</h1>
         <p class="govuk-body-l">${escape(month.label)}, every figure is derived from the underlying records.</p>
@@ -1484,7 +1498,7 @@
     return {
       title: `${params.key} — records`,
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/report`, text: 'Monthly report' },
         { text: params.key }
@@ -1533,7 +1547,7 @@
     return {
       title: `${p.displayName} — MDT record`,
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/${sel.listType === 'random' ? 'random-list' : 'reserve-list'}`, text: sel.listType === 'random' ? 'Random list' : 'Reserve list' },
         { text: p.displayName }
@@ -1719,7 +1733,7 @@
     return {
       title: 'When was the test attempted?',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { text: 'Record test' }
@@ -1759,7 +1773,7 @@
     return {
       title: 'Was the test completed?',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { href: `#/mdt/${month.id}/selection/${sel.id}/test`, text: 'Record test' },
@@ -1812,7 +1826,7 @@
     return {
       title: 'Why could the test not be completed?',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { href: `#/mdt/${month.id}/selection/${sel.id}/test/outcome`, text: 'Record test' },
@@ -1917,7 +1931,7 @@
     return {
       title: 'Record test attempt',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { text: 'Record attempt' }
@@ -1970,7 +1984,7 @@
     return {
       title: 'Record sample information',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { text: 'Sample information' }
@@ -2042,7 +2056,7 @@
     if (!available.length) {
       return {
         title: 'No reserves available',
-        breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Use a reserve' }],
+        breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Use a reserve' }],
         html: `
           <h1 class="govuk-heading-xl">No reserves available</h1>
           <p class="govuk-body">All reserves for ${escape(month.label)} have already been used.</p>
@@ -2053,7 +2067,7 @@
     return {
       title: 'Use a reserve',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { text: 'Use a reserve' }
@@ -2112,7 +2126,7 @@
     if (!sample) {
       return {
         title: 'No sample awaiting result',
-        breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Result' }],
+        breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { href: `#/mdt/${month.id}`, text: month.label }, { text: 'Result' }],
         html: `
           <h1 class="govuk-heading-xl">No sample is awaiting a result</h1>
           <p class="govuk-body">This record does not have a sample currently awaiting a laboratory result.</p>
@@ -2123,7 +2137,7 @@
     return {
       title: 'Record laboratory result',
       breadcrumbs: [
-        { href: '#/mdt', text: 'MDT' },
+        { href: '#/mdt', text: 'Mandatory drug testing' },
         { href: `#/mdt/${month.id}`, text: month.label },
         { href: `#/mdt/${month.id}/selection/${sel.id}`, text: p.displayName },
         { text: 'Record result' }
@@ -2170,7 +2184,7 @@
     const rsv = D.reserves(state, month.id);
     return {
       title: `${month.label} — random list`,
-      breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { href: '#/mdt/previous-months', text: 'Previous months' }, { text: month.label }],
+      breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { href: '#/mdt/previous-months', text: 'Previous months' }, { text: month.label }],
       html: `
         <div class="mdt-contained-view">
           <div class="mdt-contained-view__header">
@@ -2198,7 +2212,7 @@
   function notFound(id) {
     return {
       title: 'Record not found',
-      breadcrumbs: [{ href: '#/mdt', text: 'MDT' }, { text: 'Not found' }],
+      breadcrumbs: [{ href: '#/mdt', text: 'Mandatory drug testing' }, { text: 'Not found' }],
       html: `<h1 class="govuk-heading-xl">Record not found</h1><p class="govuk-body">No record could be found for <code>${escape(id)}</code>.</p>`
     };
   }

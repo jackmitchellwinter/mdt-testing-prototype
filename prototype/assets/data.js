@@ -60,7 +60,7 @@
     status: 'closed',
     randomListGeneratedAt: `${def.month}-01T08:${String(10 + mi).padStart(2, '0')}:00Z`,
     reserveListGeneratedAt: `${def.month}-01T08:${String(10 + mi).padStart(2, '0')}:00Z`,
-    generatedBy: 'Officer J. Marston (fictional)',
+    generatedBy: 'Marston, J. (fictional)',
     populationAtGeneration: 290 + ((mi * 3) % 20),
     percentageRequested: 10,
     reserveListSize: 5,
@@ -118,11 +118,11 @@
   const reportingMonths = [
     ...extraReportingMonths,
     { id: 'm-2026-05', month: '2026-05', label: 'May 2026',  establishmentId: 'est-1', allocatedTests: 10, status: 'closed', randomListGeneratedAt: '2026-05-01T08:15:00Z', reserveListGeneratedAt: '2026-05-01T08:15:00Z',
-      generatedBy: 'Officer J. Marston (fictional)', populationAtGeneration: 298, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-05-LH-0142' },
+      generatedBy: 'Marston, J. (fictional)', populationAtGeneration: 298, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-05-LH-0142' },
     { id: 'm-2026-06', month: '2026-06', label: 'June 2026', establishmentId: 'est-1', allocatedTests: 10, status: 'closed', randomListGeneratedAt: '2026-06-01T08:22:00Z', reserveListGeneratedAt: '2026-06-01T08:22:00Z',
-      generatedBy: 'Officer J. Marston (fictional)', populationAtGeneration: 301, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-06-LH-0198' },
+      generatedBy: 'Marston, J. (fictional)', populationAtGeneration: 301, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-06-LH-0198' },
     { id: 'm-2026-07', month: '2026-07', label: 'July 2026', establishmentId: 'est-1', allocatedTests: 10, status: 'closed', randomListGeneratedAt: '2026-07-01T08:04:00Z', reserveListGeneratedAt: '2026-07-01T08:04:00Z',
-      generatedBy: 'Officer J. Marston (fictional)', populationAtGeneration: 300, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-07-LH-0231' },
+      generatedBy: 'Marston, J. (fictional)', populationAtGeneration: 300, percentageRequested: 10, reserveListSize: 5, selectionReference: 'SEED-2026-07-LH-0231' },
     { id: 'm-2026-08', month: '2026-08', label: 'August 2026', establishmentId: 'est-1', allocatedTests: 10, status: 'not-started', randomListGeneratedAt: null, reserveListGeneratedAt: null,
       generatedBy: null, populationAtGeneration: null, percentageRequested: null, reserveListSize: null, selectionReference: null }
   ];
@@ -134,7 +134,7 @@
     reservePercentDefault: 50   // reserve list is 50% of random list (configurable)
   };
 
-  const currentUser = { id: 'u-marston', displayName: 'Officer J. Marston (fictional)' };
+  const currentUser = { id: 'u-marston', displayName: 'Marston, J. (fictional)' };
 
   /* -----------------------------------------------------------------------
    * Selections
@@ -286,7 +286,7 @@
   ];
 
   window.MDT_FIXTURES = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     establishment,
     currentUser,
     prisoners,
