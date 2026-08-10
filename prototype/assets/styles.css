@@ -604,6 +604,10 @@
   padding-top: 12px;
   padding-bottom: 12px;
 }
+.mdt-selection-table .mdt-release-date {
+  display: inline-block;
+  margin-bottom: 6px;
+}
 .mdt-tab-panel { min-height: 200px; }
 
 /* Two-tile compact strip used inside a tab panel (Completed + Releasing this month). */
@@ -737,6 +741,24 @@
   }
   .mdt-print-only tbody tr:nth-child(even) {
     background: #f3f2f1;
+  }
+  .mdt-print-tick-cell {
+    width: 52px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .mdt-print-tick-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #0b0c0c;
+  }
+  .mdt-print-comments-cell,
+  .mdt-print-only th:last-child {
+    width: 32%;
+  }
+  .mdt-print-comments-cell {
+    min-height: 22px;
   }
   .mdt-print-pagebreak {
     break-before: page;

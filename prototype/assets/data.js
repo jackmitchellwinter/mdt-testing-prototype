@@ -12,26 +12,26 @@
 
   // Prisoner pool (subset of prisoners.csv, treated as the whole prison for the demo).
   const prisoners = [
-    { id: 'p1', prisonNumber: 'G2632BB', displayName: 'Shelby, Thomas', location: 'A-3-027', incentiveLevel: 'Enhanced', age: 34, releaseDate: '2027-11-14' , currentActivity: 'Workshop — furniture making' },
-    { id: 'p2', prisonNumber: 'A1147CX', displayName: 'Solomons, Alfie', location: 'A-1-014', incentiveLevel: 'Standard', age: 52, releaseDate: '2026-07-31' , currentActivity: 'Kitchen work party' }, // released tomorrow (current month scenario)
-    { id: 'p3', prisonNumber: 'J8834RT', displayName: 'Shelby, Arthur', location: 'B-4-009', incentiveLevel: 'Basic',    age: 38, releaseDate: '2028-03-02' , currentActivity: 'Gym induction' },
-    { id: 'p4', prisonNumber: 'K2210LM', displayName: 'Shelby, John',    location: 'B-2-031', incentiveLevel: 'Standard', age: 29, releaseDate: '2029-02-01' , currentActivity: 'Education — Functional Skills English' },
-    { id: 'p5', prisonNumber: 'B5521ZQ', displayName: 'Gray, Michael',   location: 'C-1-002', incentiveLevel: 'Enhanced', age: 26, releaseDate: '2030-08-19' , currentActivity: 'Library orderly duties' },
-    { id: 'p6', prisonNumber: 'F7719NP', displayName: 'Kimber, Billy',   location: 'A-3-018', incentiveLevel: 'Basic',    age: 61, releaseDate: '2026-08-04' , currentActivity: 'Education — Functional Skills Maths' }, // release within 7 days
-    { id: 'p7', prisonNumber: 'H3092YU', displayName: 'Thorne, Freddie', location: 'B-2-045', incentiveLevel: 'Standard', age: 31, releaseDate: '2032-06-30' , currentActivity: 'Workshop — textiles' },
-    { id: 'p8', prisonNumber: 'E6644OP', displayName: 'Whizz-Bang, Danny', location: 'C-1-011', incentiveLevel: 'Basic',  age: 44, releaseDate: '2027-04-22' , currentActivity: 'Substance misuse programme (SMP)' },
-    { id: 'p9', prisonNumber: 'C1289WD', displayName: 'Jesus, Isaiah',    location: 'C-2-036', incentiveLevel: 'Enhanced', age: 23, releaseDate: '2028-12-01' , currentActivity: 'Education — Level 1 IT' },
-    { id: 'p10', prisonNumber: 'D9930GH', displayName: 'Bridges, Curly',  location: 'A-2-005', incentiveLevel: 'Standard', age: 58, releaseDate: '2029-05-16' , currentActivity: 'Gardens work party' },
-    { id: 'p11', prisonNumber: 'G4456TK', displayName: 'Jesus, Jeremiah', location: 'B-1-022', incentiveLevel: 'Basic',    age: 49, releaseDate: '2031-10-08' , currentActivity: 'Peer mentor training' },
-    { id: 'p12', prisonNumber: 'A8871VN', displayName: 'Strong, Charlie', location: 'B-3-014', incentiveLevel: 'Standard', age: 67, releaseDate: '2027-01-25' , currentActivity: 'Chaplaincy — pastoral support' },
-    { id: 'p13', prisonNumber: 'K5502FR', displayName: 'Gold, Aberama',   location: 'C-3-028', incentiveLevel: 'Enhanced', age: 55, releaseDate: '2030-02-11' , currentActivity: 'Workshop — laundry' },
-    { id: 'p14', prisonNumber: 'B1147QZ', displayName: 'Thomason, Barney', location: 'A-4-003', incentiveLevel: 'Basic',   age: 22, releaseDate: '2028-09-04' , currentActivity: 'Education — Level 2 Business Admin' },
-    { id: 'p15', prisonNumber: 'F3390LC', displayName: 'Changretta, Vincente', location: 'B-3-041', incentiveLevel: 'Standard', age: 60, releaseDate: '2026-08-07' , currentActivity: 'No activity scheduled' }, // release within 7d (reserve fixture)
-    { id: 'p16', prisonNumber: 'H9021MB', displayName: 'Changretta, Luca', location: 'C-4-017', incentiveLevel: 'Enhanced', age: 33, releaseDate: '2032-01-19' , currentActivity: 'Gym — PE induction' },
-    { id: 'p17', prisonNumber: 'J6642XR', displayName: 'Darby, Sabini',   location: 'A-1-009', incentiveLevel: 'Basic',    age: 45, releaseDate: '2027-06-30' , currentActivity: 'Kitchen work party' },
-    { id: 'p18', prisonNumber: 'C2287TY', displayName: 'Grade, Billy',    location: 'C-4-022', incentiveLevel: 'Standard', age: 39, releaseDate: '2028-04-12' , currentActivity: 'Education — Functional Skills English' },
-    { id: 'p19', prisonNumber: 'E5510DW', displayName: 'Nelson, Jack',    location: 'B-2-013', incentiveLevel: 'Enhanced', age: 41, releaseDate: '2029-11-30' , currentActivity: 'Resettlement — employment workshop' },
-    { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Changretta, Angel', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, releaseDate: '2027-09-16' }
+    { id: 'p1', prisonNumber: 'G2632BB', displayName: 'Shelby, Thomas', location: 'A-3-027', incentiveLevel: 'Enhanced', age: 34, releaseDate: '2027-11-14', ethnicityCode: 'W1', currentActivity: 'Workshop — furniture making' },
+    { id: 'p2', prisonNumber: 'A1147CX', displayName: 'Solomons, Alfie', location: 'A-1-014', incentiveLevel: 'Standard', age: 52, releaseDate: '2026-07-31', ethnicityCode: 'W2', currentActivity: 'Kitchen work party' }, // released tomorrow (current month scenario)
+    { id: 'p3', prisonNumber: 'J8834RT', displayName: 'Shelby, Arthur', location: 'B-4-009', incentiveLevel: 'Basic',    age: 38, releaseDate: '2028-03-02', ethnicityCode: 'W1', currentActivity: 'Gym induction' },
+    { id: 'p4', prisonNumber: 'K2210LM', displayName: 'Shelby, John',    location: 'B-2-031', incentiveLevel: 'Standard', age: 29, releaseDate: '2029-02-01', ethnicityCode: 'W1', currentActivity: 'Education — Functional Skills English' },
+    { id: 'p5', prisonNumber: 'B5521ZQ', displayName: 'Gray, Michael',   location: 'C-1-002', incentiveLevel: 'Enhanced', age: 26, releaseDate: '2030-08-19', ethnicityCode: 'W2', currentActivity: 'Library orderly duties' },
+    { id: 'p6', prisonNumber: 'F7719NP', displayName: 'Kimber, Billy',   location: 'A-3-018', incentiveLevel: 'Basic',    age: 61, releaseDate: '2026-08-04', ethnicityCode: 'W3', currentActivity: 'Education — Functional Skills Maths' }, // release within 7 days
+    { id: 'p7', prisonNumber: 'H3092YU', displayName: 'Thorne, Freddie', location: 'B-2-045', incentiveLevel: 'Standard', age: 31, releaseDate: '2032-06-30', ethnicityCode: 'M1', currentActivity: 'Workshop — textiles' },
+    { id: 'p8', prisonNumber: 'E6644OP', displayName: 'Whizz-Bang, Danny', location: 'C-1-011', incentiveLevel: 'Basic',  age: 44, releaseDate: '2027-04-22', ethnicityCode: 'B1', currentActivity: 'Substance misuse programme (SMP)' },
+    { id: 'p9', prisonNumber: 'C1289WD', displayName: 'Jesus, Isaiah',    location: 'C-2-036', incentiveLevel: 'Enhanced', age: 23, releaseDate: '2028-12-01', ethnicityCode: 'A1', currentActivity: 'Education — Level 1 IT' },
+    { id: 'p10', prisonNumber: 'D9930GH', displayName: 'Bridges, Curly',  location: 'A-2-005', incentiveLevel: 'Standard', age: 58, releaseDate: '2029-05-16', ethnicityCode: 'W1', currentActivity: 'Gardens work party' },
+    { id: 'p11', prisonNumber: 'G4456TK', displayName: 'Jesus, Jeremiah', location: 'B-1-022', incentiveLevel: 'Basic',    age: 49, releaseDate: '2031-10-08', ethnicityCode: 'A1', currentActivity: 'Peer mentor training' },
+    { id: 'p12', prisonNumber: 'A8871VN', displayName: 'Strong, Charlie', location: 'B-3-014', incentiveLevel: 'Standard', age: 67, releaseDate: '2027-01-25', ethnicityCode: 'W2', currentActivity: 'Chaplaincy — pastoral support' },
+    { id: 'p13', prisonNumber: 'K5502FR', displayName: 'Gold, Aberama',   location: 'C-3-028', incentiveLevel: 'Enhanced', age: 55, releaseDate: '2030-02-11', ethnicityCode: 'W3', currentActivity: 'Workshop — laundry' },
+    { id: 'p14', prisonNumber: 'B1147QZ', displayName: 'Thomason, Barney', location: 'A-4-003', incentiveLevel: 'Basic',   age: 22, releaseDate: '2028-09-04', ethnicityCode: 'W1', currentActivity: 'Education — Level 2 Business Admin' },
+    { id: 'p15', prisonNumber: 'F3390LC', displayName: 'Changretta, Vincente', location: 'B-3-041', incentiveLevel: 'Standard', age: 60, releaseDate: '2026-08-07', ethnicityCode: 'W2', currentActivity: 'No activity scheduled' }, // release within 7d (reserve fixture)
+    { id: 'p16', prisonNumber: 'H9021MB', displayName: 'Changretta, Luca', location: 'C-4-017', incentiveLevel: 'Enhanced', age: 33, releaseDate: '2032-01-19', ethnicityCode: 'W2', currentActivity: 'Gym — PE induction' },
+    { id: 'p17', prisonNumber: 'J6642XR', displayName: 'Darby, Sabini',   location: 'A-1-009', incentiveLevel: 'Basic',    age: 45, releaseDate: '2027-06-30', ethnicityCode: 'W3', currentActivity: 'Kitchen work party' },
+    { id: 'p18', prisonNumber: 'C2287TY', displayName: 'Grade, Billy',    location: 'C-4-022', incentiveLevel: 'Standard', age: 39, releaseDate: '2028-04-12', ethnicityCode: 'B2', currentActivity: 'Education — Functional Skills English' },
+    { id: 'p19', prisonNumber: 'E5510DW', displayName: 'Nelson, Jack',    location: 'B-2-013', incentiveLevel: 'Enhanced', age: 41, releaseDate: '2029-11-30', ethnicityCode: 'M2', currentActivity: 'Resettlement — employment workshop' },
+    { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Changretta, Angel', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, releaseDate: '2027-09-16', ethnicityCode: 'W2' }
   ];
 
   /* Ten extra closed months (2025-07 to 2026-04) so "previous months" has a realistic amount
