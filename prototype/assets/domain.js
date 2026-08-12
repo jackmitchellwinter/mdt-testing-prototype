@@ -94,7 +94,7 @@
       case 'sample-collected':  return { text: 'Sample collected',  modifier: 'purple' };
       case 'awaiting-result':   return { text: 'Awaiting result',   modifier: 'yellow' };
       case 'completed':         return { text: 'Sample taken',      modifier: 'green' };
-      case 'exception':         return { text: `Exception: ${selection.exceptionReason || 'reason not recorded'}`, modifier: 'red' };
+      case 'exception':         return { text: 'Not completed',      modifier: 'red' };
       case 'priority':          return { text: 'Priority',          modifier: 'orange' };
       default:                  return { text: selection.status || 'Unknown', modifier: 'grey' };
     }

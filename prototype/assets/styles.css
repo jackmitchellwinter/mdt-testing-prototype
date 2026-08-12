@@ -1,5 +1,51 @@
 /* Prototype-specific styles. Prefer GOV.UK Frontend classes over bespoke rules. */
 
+/* Tighten the gap below a legend heading so radios sit closer to the question. */
+.mdt-legend-heading {
+  margin-bottom: 5px;
+}
+
+/* DPS mini profile header — compact prisoner identity strip under a page heading. */
+.dps-mini-profile-header {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  background: #f3f2f1;
+  padding: 15px;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+.dps-mini-profile-header dl {
+  margin-right: 60px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.dps-mini-profile-header dl:last-child {
+  margin-right: 0;
+}
+.dps-mini-profile-header dl dt {
+  font-weight: bold;
+}
+.dps-mini-profile-header dl dd {
+  margin-left: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+@media (max-width: 40.0525em) {
+  .dps-mini-profile-header {
+    display: block;
+  }
+  .dps-mini-profile-header dl {
+    margin-right: 0;
+  }
+  .dps-mini-profile-header dl:last-child {
+    margin-bottom: 0;
+  }
+  .dps-mini-profile-header dl:last-child dd {
+    margin-bottom: 0;
+  }
+}
+
 /* Explicitly load GDS Transport from unpkg's absolute path. The govuk-frontend
    CDN CSS references fonts with a broken relative URL, so we redeclare them here. */
 @font-face {
@@ -47,7 +93,9 @@
 .mdt-sort-btn,
 .mdt-research__panel,
 .mdt-research__panel *,
-.mdt-research__toggle {
+.mdt-research__toggle,
+.dps-mini-profile-header,
+.dps-mini-profile-header * {
   font-family: "GDS Transport", arial, sans-serif;
 }
 
@@ -653,10 +701,10 @@
 
 /* Subtle "Start over" link injected into the phase banner (Generated list page). */
 .mdt-phase-banner__start-over {
-  color: #fff;
+  color: #1d70b8;
 }
 .mdt-phase-banner__start-over:visited {
-  color: #fff;
+  color: #1d70b8;
 }
 
 /* Manual tab panel hide/show — no GOV.UK Frontend JS bundle is loaded in this prototype. */
@@ -767,5 +815,5 @@
 }
 
 .mdt-comments-heading {
-  margin-bottom: 14px;
+  margin-bottom: 7px;
 }
