@@ -1991,7 +1991,7 @@
       ],
       html: `
         <span class="govuk-caption-l">${escape(p.displayName)}, ${escape(p.prisonNumber)}, ${escape(p.location)}</span>
-        <h1 class="govuk-heading-xl">Add comments (optional)</h1>
+        <h1 class="govuk-heading-xl mdt-comments-heading">Add comments (optional)</h1>
         <p class="govuk-body">You can add any notes about this test. Leave blank if there is nothing to record.</p>
 
         <form data-form-action="record-test-comments" novalidate>

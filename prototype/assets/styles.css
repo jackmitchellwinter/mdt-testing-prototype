@@ -765,3 +765,7 @@
     page-break-before: always;
   }
 }
+
+.mdt-comments-heading {
+  margin-bottom: 14px;
+}
