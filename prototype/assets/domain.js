@@ -94,7 +94,7 @@
       case 'sample-collected':  return { text: 'Sample collected',  modifier: 'purple' };
       case 'awaiting-result':   return { text: 'Awaiting result',   modifier: 'yellow' };
       case 'completed':         return { text: 'Sample taken',      modifier: 'green' };
-      case 'exception':         return { text: 'Not completed',      modifier: 'red' };
+      case 'exception':         return { text: 'Unable to test',      modifier: 'red' };
       case 'priority':          return { text: 'Priority',          modifier: 'orange' };
       default:                  return { text: selection.status || 'Unknown', modifier: 'grey' };
     }
@@ -283,10 +283,10 @@
         allocation: 'Monthly test allocation supplied by the upstream policy source. Not calculated locally.',
         completionRate: 'Completed random tests ÷ allocated tests. Reserves are counted only against their linked original selection.',
         positiveRate: 'Positive results ÷ (positive + negative). Inconclusive and rejected samples are excluded from the denominator — see OPEN_QUESTIONS.md #8.',
-        attempted: 'Random-list selections whose status is anything other than not-started.',
-        completed: 'Random-list selections with status = completed. Reserves that substitute for a completed random selection are not double-counted.',
+        attempted: 'Main-list selections whose status is anything other than not-started.',
+        completed: 'Main-list selections with status = completed. Reserves that substitute for a completed random selection are not double-counted.',
         awaitingResults: 'Selections with a sample whose status is awaiting-result.',
-        exceptionsByReason: 'Random-list selections with status = exception, grouped by recorded exceptionReason.'
+        exceptionsByReason: 'Main-list selections with status = exception, grouped by recorded exceptionReason.'
       }
     };
   }

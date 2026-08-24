@@ -65,7 +65,6 @@ All six scenarios from the brief work end-to-end:
 #/mdt/:monthId/selection/:id/use-reserve  Substitute a reserve for a random selection
 #/mdt/:monthId/selection/:id/result    Record a laboratory result
 #/mdt/previous-months                  List of previous reporting months
-#/mdt/guidance                         Prototype guidance page
 ```
 
 ## Fictional data only
