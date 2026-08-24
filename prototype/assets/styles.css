@@ -15,6 +15,7 @@
 .dps-mini-profile-header {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: start;
   background: #f3f2f1;
   padding: 15px;
@@ -48,6 +49,38 @@
   margin-left: 0;
   margin-top: 0;
   margin-bottom: 0;
+}
+.dps-mini-profile-header__alerts {
+  flex: 1 1 100%;
+  margin-top: 15px;
+}
+.mdt-alert-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mdt-alert-tag {
+  margin: 0;
+  padding: 3px 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 19px;
+  line-height: 1.2;
+  color: #0b0c0c;
+  background: #ffffff;
+  border: 3px solid #1d70b8;
+}
+.mdt-alert-tag--red {
+  border-color: #d4351c;
+}
+.mdt-alert-tag--orange {
+  border-color: #f47738;
+}
+.mdt-alert-tag--pink {
+  border-color: #d53880;
+}
+.mdt-alert-tag--blue {
+  border-color: #1d70b8;
 }
 @media (max-width: 40.0525em) {
   .dps-mini-profile-header {

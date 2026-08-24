@@ -123,6 +123,38 @@
   const tag = (text, modifier) =>
     `<strong class="govuk-tag govuk-tag--${modifier || 'blue'}">${escape(text)}</strong>`;
 
+  const ALERT_TAG_MODIFIERS = {
+    'ACCT open': 'red',
+    'ACCT post closure': 'red',
+    'Staff assaulter': 'red',
+    'Escape risk': 'red',
+    'Hostage taker': 'red',
+    'Chemical attacker': 'red',
+    'Controlled unlock': 'red',
+    'CSIP': 'pink',
+    'No one-to-one': 'orange'
+  };
+
+  function prisonerActiveAlerts(prisoner) {
+    if (!prisoner || !Array.isArray(prisoner.activeAlerts)) return [];
+    return prisoner.activeAlerts;
+  }
+
+  function renderAlertTag(alertText) {
+    const modifier = ALERT_TAG_MODIFIERS[alertText] || 'blue';
+    return `<strong class="govuk-tag mdt-alert-tag mdt-alert-tag--${modifier}">${escape(alertText)}</strong>`;
+  }
+
+  function renderAlertTagRow(prisoner, opts) {
+    const alerts = prisonerActiveAlerts(prisoner);
+    if (!alerts.length) {
+      return (opts && opts.allowEmpty)
+        ? '<span class="govuk-body">None recorded</span>'
+        : '';
+    }
+    return `<div class="mdt-alert-tag-list">${alerts.map(renderAlertTag).join('')}</div>`;
+  }
+
   /**
    * Plain-text version of a "could not test" reason, for use in confirmation
    * copy (rather than quoting the raw policy-list value).
@@ -256,6 +288,7 @@
   }
 
   function miniProfileHeader(p) {
+    const alertRow = renderAlertTagRow(p);
     return `
       <div class="dps-mini-profile-header">
         ${profilePhoto()}
@@ -271,6 +304,19 @@
           <dt>Location</dt>
           <dd>${escape(p.location)}</dd>
         </dl>
+        <dl>
+          <dt>Ethnicity code</dt>
+          <dd>${escape(p.ethnicityCode || '')}</dd>
+        </dl>
+        <dl>
+          <dt>Religion</dt>
+          <dd>${escape(p.religion || '')}</dd>
+        </dl>
+        <dl>
+          <dt>Languages spoken</dt>
+          <dd>${escape(p.languagesSpoken || '')}</dd>
+        </dl>
+        ${alertRow ? `<div class="dps-mini-profile-header__alerts">${alertRow}</div>` : ''}
       </div>`;
   }
 
@@ -1428,6 +1474,9 @@
           ${showPosition ? `<td>${s.listPosition}</td>` : ''}
           <td>${escape(p.displayName)}<br>${escape(p.prisonNumber)}</td>
           <td>${escape(p.location)}</td>
+          <td>${escape(p.religion || '')}</td>
+          <td>${escape(p.languagesSpoken || '')}</td>
+          <td>${escape((p.activeAlerts || []).join(', '))}</td>
           <td class="mdt-print-comments-cell"></td>
         </tr>`;
     }).join('');
@@ -1440,7 +1489,10 @@
             ${opts.showPosition ? '<th>Position</th>' : ''}
             <th>Prisoner</th>
             <th>Location</th>
-            <th>Comments</th>
+            <th>Religion</th>
+            <th>Languages spoken</th>
+            <th>Alerts</th>
+            <th>Date tested and other comments</th>
           </tr>
         </thead>
         <tbody>${rowsFor(items, opts.showPosition)}</tbody>
@@ -1876,6 +1928,14 @@
               <td class="govuk-table__cell">${escape(p.ethnicityCode || '')}</td>
             </tr>
             <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">Religion</th>
+              <td class="govuk-table__cell">${escape(p.religion || '')}</td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">Languages spoken</th>
+              <td class="govuk-table__cell">${escape(p.languagesSpoken || '')}</td>
+            </tr>
+            <tr class="govuk-table__row">
               <th scope="row" class="govuk-table__header">In custody since</th>
               <td class="govuk-table__cell">${p.arrivalDate ? formatDate(p.arrivalDate) : ''}</td>
             </tr>
@@ -1888,8 +1948,20 @@
               <td class="govuk-table__cell">${formatDate(p.releaseDate)}</td>
             </tr>
             <tr class="govuk-table__row">
-              <th scope="row" class="govuk-table__header">Current activity today</th>
-              <td class="govuk-table__cell">${p.currentActivity ? `${escape(p.currentActivity)} at 2:00pm` : 'No activity scheduled'}</td>
+              <th scope="row" class="govuk-table__header">Planned activity this morning</th>
+              <td class="govuk-table__cell">${p.activityMorning ? escape(p.activityMorning) : 'No planned activity'}</td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">Planned activity this afternoon</th>
+              <td class="govuk-table__cell">${p.activityAfternoon ? escape(p.activityAfternoon) : 'No planned activity'}</td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">Planned activity this evening</th>
+              <td class="govuk-table__cell">${p.activityEvening ? escape(p.activityEvening) : 'No planned activity'}</td>
+            </tr>
+            <tr class="govuk-table__row">
+              <th scope="row" class="govuk-table__header">Active alerts</th>
+              <td class="govuk-table__cell">${renderAlertTagRow(p, { allowEmpty: true })}</td>
             </tr>
           </tbody>
         </table>
@@ -1906,6 +1978,7 @@
               <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header">Date</th>
                 <th scope="col" class="govuk-table__header">Reporting month</th>
+                <th scope="col" class="govuk-table__header">Location of test</th>
                 <th scope="col" class="govuk-table__header">Status</th>
                 <th scope="col" class="govuk-table__header">Comments</th>
                 <th scope="col" class="govuk-table__header" style="width: 23%">Action</th>
@@ -1916,6 +1989,7 @@
                 <tr class="govuk-table__row">
                   <td class="govuk-table__cell">${h.date ? formatDate(h.date) : 'Not tested yet'}</td>
                   <td class="govuk-table__cell">${escape(h.monthLabel)}</td>
+                  <td class="govuk-table__cell">${escape(state.establishment.name)}</td>
                   <td class="govuk-table__cell">${tag(h.label, h.modifier)}</td>
                   <td class="govuk-table__cell">${h.comment ? escape(h.comment) : 'No comment recorded'}</td>
                   <td class="govuk-table__cell">${renderActionCell(h.action)}</td>

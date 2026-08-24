@@ -34,6 +34,62 @@
     { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Changretta, Angel', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, arrivalDate: '2024-11-08', releaseDate: '2027-09-16', ethnicityCode: 'W2' }
   ];
 
+  const prisonerActiveAlerts = {
+    p1: ['OCG nominal (do not share)', 'Risk to females'],
+    p2: ['No one-to-one', 'Controlled unlock'],
+    p3: ['Violent', 'Staff assaulter'],
+    p4: ['ACCT open', 'PEEP'],
+    p5: ['CSIP', 'Conflict'],
+    p6: ['E-list', 'Escape risk'],
+    p7: ['Risk to staff', 'Racist'],
+    p8: ['Hidden disability', 'Risk to LGBT'],
+    p9: ['No one-to-one', 'ViSOR'],
+    p10: ['Corruptor', 'Potential corruptor'],
+    p11: ['Hostage taker', 'Concerted indiscipline'],
+    p12: ['ACCT post closure', 'Isolated'],
+    p13: ['Chemical attacker', 'E-list heightened'],
+    p14: ['Risk to known adults'],
+    p15: ['Controlled unlock', 'Conflict'],
+    p16: ['OCG nominal (do not share)'],
+    p17: ['Risk to females', 'Risk to staff'],
+    p18: ['PEEP', 'Hidden disability'],
+    p19: ['Corruptor', 'ViSOR'],
+    p20: ['Violent']
+  };
+
+  const prisonerReligion = {
+    p1: 'Christian', p2: 'Jewish', p3: 'Christian', p4: 'No religion', p5: 'Christian',
+    p6: 'Christian', p7: 'Muslim', p8: 'Christian', p9: 'Muslim', p10: 'Christian',
+    p11: 'Muslim', p12: 'Christian', p13: 'Christian', p14: 'No religion', p15: 'Christian',
+    p16: 'Catholic', p17: 'Muslim', p18: 'Christian', p19: 'Christian', p20: 'No religion'
+  };
+
+  const prisonerLanguages = {
+    p1: 'English', p2: 'English, Yiddish', p3: 'English', p4: 'English', p5: 'English',
+    p6: 'English', p7: 'English, Romani', p8: 'English', p9: 'English, Portuguese', p10: 'English',
+    p11: 'English, Portuguese', p12: 'English', p13: 'English', p14: 'English', p15: 'English, Italian',
+    p16: 'English, Italian', p17: 'English, Italian', p18: 'English', p19: 'English', p20: 'English, Italian'
+  };
+
+  // A handful of prisoners visited most often in demos get a full morning/afternoon/evening
+  // schedule; everyone else keeps their existing `currentActivity` as the afternoon slot only.
+  const activityOverrides = {
+    p1: { morning: 'Gym induction', evening: null },
+    p2: { morning: null, evening: 'Chaplaincy — evening service' },
+    p5: { morning: 'Education — Level 1 IT', evening: null },
+    p11: { morning: 'Peer mentor training', afternoon: null, evening: 'Gym — PE induction' }
+  };
+
+  prisoners.forEach((prisoner) => {
+    prisoner.activeAlerts = prisonerActiveAlerts[prisoner.id] || [];
+    prisoner.religion = prisonerReligion[prisoner.id] || 'Not stated';
+    prisoner.languagesSpoken = prisonerLanguages[prisoner.id] || 'English';
+    const override = activityOverrides[prisoner.id] || {};
+    prisoner.activityMorning = 'morning' in override ? override.morning : null;
+    prisoner.activityAfternoon = 'afternoon' in override ? override.afternoon : (prisoner.currentActivity || null);
+    prisoner.activityEvening = 'evening' in override ? override.evening : null;
+  });
+
   /* Ten extra closed months (2025-07 to 2026-04) so "previous months" has a realistic amount
      of history. Most prisoners are tested each month, but a handful of exceptions (and a
      reserve stepping in to cover one of them) are scattered through the run so the history
@@ -286,7 +342,7 @@
   ];
 
   window.MDT_FIXTURES = {
-    schemaVersion: 5,
+    schemaVersion: 7,
     establishment,
     currentUser,
     prisoners,
