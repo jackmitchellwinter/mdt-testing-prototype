@@ -31,7 +31,7 @@
     { id: 'p17', prisonNumber: 'J6642XR', displayName: 'Darby, Sabini',   location: 'A-1-009', incentiveLevel: 'Basic',    age: 45, arrivalDate: '2018-02-26', releaseDate: '2027-06-30', ethnicityCode: 'W3', currentActivity: 'Kitchen work party' },
     { id: 'p18', prisonNumber: 'C2287TY', displayName: 'Grade, Billy',    location: 'C-4-022', incentiveLevel: 'Standard', age: 39, arrivalDate: '2019-06-12', releaseDate: '2028-04-12', ethnicityCode: 'B2', currentActivity: 'Education — Functional Skills English' },
     { id: 'p19', prisonNumber: 'E5510DW', displayName: 'Nelson, Jack',    location: 'B-2-013', incentiveLevel: 'Enhanced', age: 41, arrivalDate: '2020-10-29', releaseDate: '2029-11-30', ethnicityCode: 'M2', currentActivity: 'Resettlement — employment workshop' },
-    { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Changretta, Angel', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, arrivalDate: '2024-11-08', releaseDate: '2027-09-16', ethnicityCode: 'W2' }
+    { id: 'p20', prisonNumber: 'D8834PN', displayName: 'Changretta, Angel', location: 'C-1-006', incentiveLevel: 'Basic',  age: 27, arrivalDate: '2024-11-08', releaseDate: null, ethnicityCode: 'W2' } // no release date recorded
   ];
 
   const prisonerActiveAlerts = {

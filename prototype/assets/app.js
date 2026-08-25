@@ -115,6 +115,12 @@
     if (Number.isNaN(d.getTime())) return escape(iso);
     return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
+  function formatMonthYear(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return escape(iso);
+    return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  }
   function formatPercent(v) {
     if (v == null) return '—';
     return `${Math.round(v * 100)}%`;
@@ -156,25 +162,25 @@
   }
 
   /**
-   * Plain-text version of a "could not test" reason, for use in confirmation
-   * copy (rather than quoting the raw policy-list value).
+   * "they ..." phrasing of a "could not test" reason, for use in confirmation
+   * copy of the form "because they [reason]".
    */
-  function reasonToPlainText(reason) {
+  function reasonToTheyPhrase(reason) {
     const map = {
-      'Adjudication': 'the prisoner is subject to an adjudication',
-      'Discharged': 'the prisoner had been discharged',
-      'Fatal flaw in chain of custody': 'there was a fatal flaw in the chain of custody',
-      'Internal medical appointment': 'the prisoner was at an internal medical appointment',
-      'Medically unfit': 'the prisoner was medically unfit',
-      'Offending behavior programme': 'the prisoner was at an offending behaviour programme',
-      'Abandoned due to operational reasons': 'the test was abandoned due to operational reasons',
-      'Out of establishment': 'the prisoner was out of the establishment',
-      'Refused': 'the prisoner refused the test',
-      'Scheduled discharge': 'the prisoner had a scheduled discharge',
-      'Transferred': 'the prisoner had transferred out',
-      'Visit': 'the prisoner was on a visit'
+      'Adjudication': 'are subject to an adjudication',
+      'Discharged': 'had been discharged',
+      'Fatal flaw in chain of custody': 'were affected by a fatal flaw in the chain of custody',
+      'Internal medical appointment': 'were at an internal medical appointment',
+      'Medically unfit': 'were medically unfit',
+      'Offending behavior programme': 'were at an offending behaviour programme',
+      'Abandoned due to operational reasons': 'had the test abandoned due to operational reasons',
+      'Out of establishment': 'were out of the establishment',
+      'Refused': 'refused the test',
+      'Scheduled discharge': 'had a scheduled discharge',
+      'Transferred': 'had transferred out',
+      'Visit': 'were on a visit'
     };
-    return map[reason] || 'the test could not be completed';
+    return map[reason] || 'could not complete the test';
   }
 
   /**
@@ -300,23 +306,6 @@
             ${escape(p.prisonNumber)}
           </dd>
         </dl>
-        <dl>
-          <dt>Location</dt>
-          <dd>${escape(p.location)}</dd>
-        </dl>
-        <dl>
-          <dt>Ethnicity code</dt>
-          <dd>${escape(p.ethnicityCode || '')}</dd>
-        </dl>
-        <dl>
-          <dt>Religion</dt>
-          <dd>${escape(p.religion || '')}</dd>
-        </dl>
-        <dl>
-          <dt>Languages spoken</dt>
-          <dd>${escape(p.languagesSpoken || '')}</dd>
-        </dl>
-        ${alertRow ? `<div class="dps-mini-profile-header__alerts">${alertRow}</div>` : ''}
       </div>`;
   }
 
@@ -1289,7 +1278,7 @@
 
         ${renderOutstandingIssueAlert(month)}
 
-        <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Average population of ${escape(est.name)} over the last 30 days</h3>
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Average population of ${escape(est.name)} over the last 12 months</h3>
         <p class="mdt-big-number">${est.avgPopulation30Days}</p>
 
         <form data-form-action="generate-lists" data-month-id="${escape(month.id)}" class="govuk-!-margin-top-4" novalidate>
@@ -1418,10 +1407,6 @@
             <caption class="govuk-visually-hidden">Generation record for ${escape(month.label)}</caption>
             <tbody class="govuk-table__body">
               <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">List reference</th>
-                <td class="govuk-table__cell">${escape(month.id)}</td>
-              </tr>
-              <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header">Generated time and date</th>
                 <td class="govuk-table__cell">${escape(generatedAt)}</td>
               </tr>
@@ -1430,7 +1415,7 @@
                 <td class="govuk-table__cell">${escape(month.generatedBy || 'Not yet generated')}</td>
               </tr>
               <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">Population at generation</th>
+                <th scope="row" class="govuk-table__header">Population over last 12 months at generation</th>
                 <td class="govuk-table__cell">${month.populationAtGeneration != null ? month.populationAtGeneration : '—'}</td>
               </tr>
               <tr class="govuk-table__row">
@@ -1449,7 +1434,7 @@
           </table>
 
           <p class="govuk-body"><strong>List generation</strong><br>
-          A main list and a reserve list are generated at the start of each month. After generation, the lists are no longer editable. The size of the main list is calculated as a percentage of the establishment's average population over the last 30 days.</p>
+          A main list and a reserve list are generated at the start of each month. After generation, the lists are no longer editable. The size of the main list is calculated as a percentage of the establishment's average population over the last 12 months.</p>
 
           <p class="govuk-body"><strong>Reserves</strong><br>
           A reserve may be used when a main list selection cannot be tested. You must test reserves in the order that they appear in in the reserve list.</p>
@@ -1527,15 +1512,13 @@
       return p && D.isReleasingInMonth(p.releaseDate, month.month);
     }).length;
     const weekend = D.testedOnWeekendStats(state, month.id);
-    const weekendValue = weekend.total === 0
-      ? '0 (0%)'
-      : `${weekend.weekend} (${weekend.percent}%)`;
+    const weekendValue = String(weekend.weekend);
     return `
       ${hideMetrics ? '' : `
       <ul class="mdt-stat-strip mdt-stat-strip--tight" role="list">
         ${statTile('Completed', `${completed}`, `of ${month.allocatedTests}`, null, 'mdt-stat-tile--plain')}
         ${hideReleasingMetric ? '' : statTile('Releasing this month', releasing, null, releasing > 0 ? 'warning' : null, 'mdt-stat-tile--plain')}
-        ${statTile('Tested on weekend', weekendValue, 'target 14%', (weekend.total > 0 && weekend.percent > 14) ? 'warning' : null, 'mdt-stat-tile--plain')}
+        ${statTile('Tested on weekend', weekendValue, 'Target: 2', (weekend.total > 0 && weekend.percent > 14) ? 'warning' : null, 'mdt-stat-tile--plain')}
       </ul>`}
       ${renderSelectionTable(items, month, 'random', { activatedReserves, simplified, hideExtras })}`;
   }
@@ -1556,7 +1539,7 @@
         ${statTile('Reserves used', `${used}`, `of ${items.length}`, null, 'mdt-stat-tile--plain')}
         ${hideReleasingMetric ? '' : statTile('Releasing this month', releasing, null, releasing > 0 ? 'warning' : null, 'mdt-stat-tile--plain')}
       </ul>`}
-      <p class="govuk-body">Reserves are used when a main-list prisoner cannot be tested. They need to be tested in list order if used.</p>
+      <p class="govuk-body">Reserves are used when a main-list prisoner cannot be tested. They need to be tested in list order if they are moved to the main list.</p>
       ${renderSelectionTable(items, month, 'reserve', { hideExtras })}`;
   }
 
@@ -1651,7 +1634,7 @@
       } else if (blockedByEarlierActivatedReserve) {
         actionCell = '<span class="govuk-body-m govuk-!-margin-0">Test previous reserve first</span>';
       } else if (alreadyTested) {
-        actionCell = '<span class="govuk-body-m govuk-!-margin-0">Sample taken</span>';
+        actionCell = '<span class="govuk-body-m govuk-!-margin-0">No action needed</span>';
       } else if (canRecord) {
         actionCell = `<a class="govuk-link" href="#/mdt/${escape(month.id)}/selection/${escape(sel.id)}/test">Record test</a>`;
       } else {
@@ -1660,7 +1643,7 @@
 
       let statusForRow = (listType === 'reserve')
         ? (sel.originalSelectionId
-            ? { text: 'Called from reserve', modifier: 'green' }
+            ? { text: 'Moved to main list', modifier: 'green' }
             : { text: 'Available as reserve', modifier: 'grey' })
         : status;
 
@@ -1684,8 +1667,8 @@
           </td>
           ${listType === 'random' ? `<td class="govuk-table__cell" data-sort-value="${escape(isActivatedReserve ? 'Reserve' : 'Main')}">${isActivatedReserve ? 'Reserve' : 'Main'}</td>` : ''}
           ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.arrivalDate || '')}">${p.arrivalDate ? formatDate(p.arrivalDate) : ''}</td>`}
-          ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.releaseDate || '')}">${p.releaseDate ? formatDate(p.releaseDate) : ''}</td>`}
-          ${simplified ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(lastTested || '')}">${lastTested ? formatDate(lastTested) : 'Not tested before'}</td>`}
+          ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.releaseDate || '')}">${p.releaseDate ? formatDate(p.releaseDate) : 'No date recorded'}</td>`}
+          ${simplified ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(lastTested || '')}">${lastTested ? formatMonthYear(lastTested) : 'Not tested before'}</td>`}
           <td class="govuk-table__cell" data-sort-value="${escape(statusForRow.text)}">${tag(statusForRow.text, statusForRow.modifier)}</td>
           ${(listType === 'reserve' || simplified) ? '' : `<td class="govuk-table__cell">${actionCell}</td>`}
         </tr>`;
@@ -1700,7 +1683,7 @@
       ...(listType === 'random' ? [{ key: 'originalList', label: 'Original list' }] : []),
       ...(hideNewColumns ? [] : [{ key: 'custodySince', label: 'In custody since' }]),
       ...(hideNewColumns ? [] : [{ key: 'releaseDate', label: 'Release date (CRD)' }]),
-      ...(simplified ? [] : [{ key: 'tested', label: 'Last tested' }]),
+      ...(simplified ? [] : [{ key: 'tested', label: 'Last selected month' }]),
       { key: 'status',    label: 'Status' }
     ].map((h, i) => sortable ? `
       <th scope="col" class="govuk-table__header">
@@ -2217,7 +2200,6 @@
     const reserveSel = sel.replacementSelectionId ? D.selectionFor(state, sel.replacementSelectionId) : null;
     const reserveP = reserveSel ? D.prisonerFor(state, reserveSel.prisonerId) : null;
     const isRefusal = sel.status === 'exception' && (sel.exceptionReason || '').toLowerCase() === 'refused';
-    const needsAdjudication = isRefusal;
 
     let panel;
     let feedback = '';
@@ -2236,22 +2218,19 @@
           <div class="govuk-panel__body">${escape(p.displayName)}</div>
         </div>`;
       const reserveLine = reserveSel
-        ? `<p class="govuk-body">The service has added <strong>${escape(reserveP.displayName)}</strong> (${escape(reserveP.prisonNumber)}, ${escape(reserveP.location)}) to this month's main list to replace ${escape(p.displayName)}.</p>`
+        ? `<p class="govuk-body">We have added <strong>${escape(reserveP.displayName)}</strong> (${escape(reserveP.prisonNumber)}, ${escape(reserveP.location)}) to this month's main list to replace ${escape(p.displayName)}.</p>`
         : `<p class="govuk-body">No reserves are available to replace ${escape(p.displayName)} this month.</p>`;
       const refusalLine = isRefusal
-        ? `<p class="govuk-body">${escape(p.displayName)} refused the test — refusal is a chargeable offence and requires adjudication.</p>`
+        ? `<p class="govuk-body">Refusal is a chargeable offence and requires adjudication. <a class="govuk-link" href="#/adjudications" data-mdt-dummy="adjudication" target="_blank" rel="noopener noreferrer">Record this incident (opens in new tab)</a></p>`
         : '';
       feedback = `
-        <p class="govuk-body">You have recorded that ${escape(p.displayName)} could not test this month because ${escape(reasonToPlainText(sel.exceptionReason))}.</p>
+        <p class="govuk-body">You have recorded that ${escape(p.displayName)} could not provide a sample this month because they ${escape(reasonToTheyPhrase(sel.exceptionReason))}.</p>
+        <h3 class="govuk-heading-m">What happens next?</h3>
         ${reserveLine}
         ${refusalLine}`;
     } else {
       panel = `<p class="govuk-body">Nothing to confirm.</p>`;
     }
-
-    const adjudicationLink = needsAdjudication
-      ? `<a class="govuk-link" href="#/adjudications" data-mdt-dummy="adjudication">Continue to adjudication service</a>`
-      : '';
 
     return {
       title: 'Confirmation',
@@ -2263,7 +2242,6 @@
 
         <div class="govuk-button-group govuk-!-margin-top-4">
           <a class="govuk-button" data-module="govuk-button" href="#/mdt/${escape(month.id)}/random-list">Return to the main list</a>
-          ${adjudicationLink}
         </div>
       `
     };
