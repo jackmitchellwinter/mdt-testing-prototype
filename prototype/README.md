@@ -1,6 +1,6 @@
 # MDT MVP prototype
 
-Lightweight, browser-only research prototype for the Digital Prison Services **Mandatory Drug Testing** service. Designed for moderated user research with prison staff. Not production code.
+Lightweight, browser-only research prototype for the Digital Prison Services **Mandatory Drugs Testing** service. Designed for moderated user research with prison staff. Not production code.
 
 ## Run it
 

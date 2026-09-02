@@ -237,7 +237,7 @@
         : `Replaced by a reserve due to ${escape(reasonToActionPhrase(sel.exceptionReason))}` };
     }
     if (blockedByEarlierActivatedReserve) return { type: 'text', html: 'Test previous reserve first' };
-    if (alreadyTested) return { type: 'text', html: 'Sample taken' };
+    if (alreadyTested) return { type: 'text', html: 'No action needed' };
     if (!month) return null;
     if (sel.status === 'exception') return { type: 'link', href: `#/mdt/${month.id}/selection/${sel.id}/use-reserve`, label: 'Use a reserve' };
     if (canRecord) return { type: 'link', href: `#/mdt/${month.id}/selection/${sel.id}/test`, label: 'Record test' };
@@ -249,6 +249,25 @@
     return action.type === 'link'
       ? `<a class="govuk-link" href="${escape(action.href)}">${escape(action.label)}</a>`
       : `<span class="govuk-body-m govuk-!-margin-0">${action.html}</span>`;
+  }
+
+  /**
+   * GOV.UK "print_link" component (see
+   * https://components.publishing.service.gov.uk/component-guide/print_link),
+   * wired to the existing data-mdt-print click handler which calls window.print().
+   */
+  function renderPrintLink(monthId, text) {
+    return `
+      <div class="gem-c-print-link govuk-!-display-none-print govuk-!-margin-bottom-0">
+        <button type="button" class="gem-c-print-link__button govuk-link govuk-link--no-visited-state" data-mdt-print="${escape(monthId)}">
+          <svg class="gem-c-print-link__icon" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 34" width="17" height="15">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M35.7 8.5h-4.2V0H7.5v8.5H3.3C1.5 8.5 0 10 0 11.8v14.9c0 1.9 1.5 3.3 3.3 3.3h4.2V34h24V30h4.2c1.8 0 3.3-1.4 3.3-3.3V11.8c0-1.8-1.5-3.3-3.3-3.3zM11.5 4h16v4.5h-16V4zm16 26h-16v-8h16v8zm4.2-4H30v-6H9v6H3.3c-.4 0-.8-.3-.8-.8V11.8c0-.4.3-.8.8-.8h32.4c.4 0 .8.3.8.8v14.9c0 .5-.3.8-.8.8z" fill="currentColor"/>
+            <path d="M25 16H11v2h14v-2z" fill="currentColor"/>
+          </svg>
+          ${escape(text)}
+        </button>
+      </div>
+    `;
   }
 
   function priorityBadge(sel, prisoner) {
@@ -1016,7 +1035,7 @@
     { name: 'Check my diary', href: '#', description: 'View your prison staff detail (staff rota) from home.' },
     { name: 'CSIP', href: '#', description: 'View and manage the Challenge, Support and Intervention Plan (CSIP) caseload.' },
     { name: 'Establishment roll check', href: '#', description: 'View the roll broken down by residential unit and see who is arriving and leaving.' },
-    { name: 'Mandatory drug testing', href: '#/mdt', description: 'Generate random testing lists, record test outcomes and manage follow-up actions.' }
+    { name: 'Mandatory drugs testing', href: '#/mdt', description: 'Generate random testing lists, record test outcomes and manage follow-up actions.' }
   ];
 
   function renderDpsHome() {
@@ -1325,7 +1344,7 @@
     const hideExtras = !!(opts && opts.hideExtras);
 
     return {
-      title: opts.isHome ? 'Mandatory drug testing' : `${month.label} — ${tabLabelFor(activeTab)}`,
+      title: opts.isHome ? 'Mandatory drugs testing' : `${month.label} — ${tabLabelFor(activeTab)}`,
       breadcrumbs: [{ href: '#/', text: 'Digital Prison Services' }, { text: monthCrumbText(month) }],
       html: `
         <div class="mdt-workspace-header">
@@ -1337,9 +1356,7 @@
             <a class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" href="#/mdt/previous-months" role="button" draggable="false" data-module="govuk-button">
               View previous months
             </a>
-            <button type="button" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-mdt-print="${escape(month.id)}">
-              Print testing lists
-            </button>
+            ${renderPrintLink(month.id, 'Print testing lists')}
           </div>
         </div>
 
@@ -2527,9 +2544,7 @@
             <a class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" href="#/mdt/previous-months" role="button" draggable="false" data-module="govuk-button">
               View previous months
             </a>
-            <button type="button" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-mdt-print="${escape(month.id)}">
-              Print testing lists
-            </button>
+            ${renderPrintLink(month.id, 'Print testing lists')}
           </div>
         </div>
 
