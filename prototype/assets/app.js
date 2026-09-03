@@ -1307,7 +1307,7 @@
             name: 'randomSize',
             legend: 'Select main list size',
             hint: `The policy rule for a prison this size is to select ${percent}% of the prison population.`,
-            options: [15, 10, 5],
+            options: [10, 5],
             otherLabel: 'Other main list size',
             selectedValue: randomSelected,
             otherValue: values.randomSizeOther,
