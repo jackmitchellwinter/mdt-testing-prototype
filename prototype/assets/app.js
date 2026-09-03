@@ -258,15 +258,9 @@
    */
   function renderPrintLink(monthId, text) {
     return `
-      <div class="gem-c-print-link govuk-!-display-none-print govuk-!-margin-bottom-0">
-        <button type="button" class="gem-c-print-link__button govuk-link govuk-link--no-visited-state" data-mdt-print="${escape(monthId)}">
-          <svg class="gem-c-print-link__icon" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 34" width="17" height="15">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M35.7 8.5h-4.2V0H7.5v8.5H3.3C1.5 8.5 0 10 0 11.8v14.9c0 1.9 1.5 3.3 3.3 3.3h4.2V34h24V30h4.2c1.8 0 3.3-1.4 3.3-3.3V11.8c0-1.8-1.5-3.3-3.3-3.3zM11.5 4h16v4.5h-16V4zm16 26h-16v-8h16v8zm4.2-4H30v-6H9v6H3.3c-.4 0-.8-.3-.8-.8V11.8c0-.4.3-.8.8-.8h32.4c.4 0 .8.3.8.8v14.9c0 .5-.3.8-.8.8z" fill="currentColor"/>
-            <path d="M25 16H11v2h14v-2z" fill="currentColor"/>
-          </svg>
-          ${escape(text)}
-        </button>
-      </div>
+      <button type="button" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0 govuk-!-display-none-print" data-mdt-print="${escape(monthId)}">
+        ${escape(text)}
+      </button>
     `;
   }
 
@@ -1122,7 +1116,7 @@
   }
 
   // ---- Dedicated static routes before the generic month route -------------
-  route('/mdt/previous-months', () => {
+  route('/mdt/previous-months', (params) => {
     const current = D.currentMonth(state);
     const months = state.reportingMonths.filter(m => m.id !== current.id);
     return {
@@ -1130,7 +1124,7 @@
       breadcrumbs: [{ href: '#/', text: 'Digital Prison Services' }, { href: `#/mdt/${current.id}`, text: monthCrumbText(current) }, { text: 'Previous months' }],
       html: `
         <h1 class="govuk-heading-xl">Previous months</h1>
-        ${renderMonthHistorySection(months, { hideHeading: true })}
+        ${renderMonthHistorySection(months, { hideHeading: true, page: params.page })}
       `
     };
   });
@@ -1217,28 +1211,79 @@
 
   function renderMonthHistorySection(months, opts) {
     const showHeading = !(opts && opts.hideHeading);
+    const pageSize = 20;
     const sortedMonths = months.slice().sort((a, b) => b.month.localeCompare(a.month));
-    const items = sortedMonths.map(m => {
+    const totalPages = Math.max(1, Math.ceil(sortedMonths.length / pageSize));
+    const requestedPage = parseInt((opts && opts.page) || '1', 10);
+    const page = Number.isFinite(requestedPage) ? Math.min(Math.max(requestedPage, 1), totalPages) : 1;
+    const pageMonths = sortedMonths.slice((page - 1) * pageSize, page * pageSize);
+
+    const rows = pageMonths.map(m => {
       const report = D.buildMonthlyReport(state, m.id);
       return `
-        <li class="mdt-month-history-item">
-          <div class="mdt-month-history-item__header">
-            <h3 class="govuk-heading-s govuk-!-margin-bottom-2">${escape(m.label)}</h3>
-          </div>
-          <p class="govuk-body govuk-!-margin-bottom-2">Tested from main list: ${report.figures.completed} of ${m.allocatedTests}</p>
-          <p class="govuk-body govuk-!-margin-bottom-2">Tested from reserve list: ${report.figures.completedReserve}</p>
-          <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-0">
-            <a class="govuk-link" href="#/mdt/${escape(m.id)}/contained">View ${escape(m.label)}</a>
-          </p>
-        </li>`;
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">${escape(m.label)}</td>
+          <td class="govuk-table__cell">${report.figures.completed} of ${m.allocatedTests}</td>
+          <td class="govuk-table__cell">${report.figures.completedReserve}</td>
+          <td class="govuk-table__cell"><a class="govuk-link" href="#/mdt/${escape(m.id)}/contained">View ${escape(m.label)}</a></td>
+        </tr>`;
     }).join('');
+
+    const table = `
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Reporting month</th>
+            <th scope="col" class="govuk-table__header">Tested from main list</th>
+            <th scope="col" class="govuk-table__header">Tested from reserve list</th>
+            <th scope="col" class="govuk-table__header">Action</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">${rows}</tbody>
+      </table>`;
+
+    const pagination = renderMonthHistoryPagination(page, totalPages, sortedMonths.length, pageSize);
 
     return `
       <div class="govuk-!-margin-top-8">
         ${showHeading ? `<h2 class="govuk-heading-m">Previous months</h2>
         <p class="govuk-body">Review earlier months and their outstanding work before you continue.</p>` : ''}
-        <ul class="govuk-list govuk-list--spaced mdt-month-history-list">${items}</ul>
+        ${table}
+        ${pagination}
       </div>`;
+  }
+
+  function renderMonthHistoryPagination(page, totalPages, totalResults, pageSize) {
+    if (totalPages <= 1) return '';
+    const firstResult = (page - 1) * pageSize + 1;
+    const lastResult = Math.min(page * pageSize, totalResults);
+    const items = [];
+    for (let i = 1; i <= totalPages; i++) {
+      items.push(`
+        <li class="moj-pagination__item${i === page ? ' moj-pagination__item--active' : ''}">
+          <a class="moj-pagination__link" href="#/mdt/previous-months?page=${i}" aria-label="Page ${i}"${i === page ? ' aria-current="page"' : ''}>${i}</a>
+        </li>`);
+    }
+    const prev = page > 1 ? `
+      <div class="moj-pagination__prev">
+        <a class="moj-pagination__link" href="#/mdt/previous-months?page=${page - 1}" rel="prev">
+          <span class="govuk-visually-hidden">Previous set of pages</span>Previous
+        </a>
+      </div>` : '';
+    const next = page < totalPages ? `
+      <div class="moj-pagination__next">
+        <a class="moj-pagination__link" href="#/mdt/previous-months?page=${page + 1}" rel="next">
+          Next<span class="govuk-visually-hidden"> set of pages</span>
+        </a>
+      </div>` : '';
+
+    return `
+      <nav class="moj-pagination" aria-label="Pagination">
+        <p class="moj-pagination__summary">Showing <b>${firstResult}</b> to <b>${lastResult}</b> of <b>${totalResults}</b> results</p>
+        ${prev}
+        <ul class="moj-pagination__list">${items.join('')}</ul>
+        ${next}
+      </nav>`;
   }
 
   // GOV.UK-style radios-with-conditional-reveal for a percentage field. `options`
@@ -1969,8 +2014,8 @@
         ${renderSamples(samples)}
         ${renderFollowUps(fu, month.id, sel.id)}
 
-        <h2 class="govuk-heading-l govuk-!-margin-top-6">Drug test history</h2>
-        <p class="govuk-body">This history covers drug testing activity only. It does not include laboratory results and only includes records captured while the prisoner has been managed on DPS.</p>
+        <h2 class="govuk-heading-l govuk-!-margin-top-6">Random mandatory drug testing history</h2>
+        <p class="govuk-body">This history covers random mandatory drug testing activity only. It does not include the results of these tests and it does not include any other type of drug testing (such as suspicion based testing).</p>
         ${history.length === 0 ? '<p class="govuk-body">No previous test history recorded.</p>' : `
           <table class="govuk-table">
             <caption class="govuk-visually-hidden">Drug test history for ${escape(p.displayName)}</caption>

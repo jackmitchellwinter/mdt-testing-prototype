@@ -912,41 +912,14 @@
 }
 
 /* ---- GOV.UK "print_link" component (not bundled with GOV.UK Frontend) ---- */
-.gem-c-print-link {
+.mdt-print-link {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
 }
-.gem-c-print-link__button {
-  display: inline-flex;
-  align-items: center;
-  background: #ffffff;
-  border: 1px solid #505a5f;
-  border-radius: 0;
-  margin: 0;
-  padding: 8px 16px;
-  min-height: 40px;
-  box-sizing: border-box;
-  font: inherit;
-  font-size: 19px;
-  line-height: 1.25;
-  color: #1d70b8;
-  text-decoration: underline;
-  text-decoration-thickness: max(1px, .0625rem);
-  text-underline-offset: 0.1em;
-  cursor: pointer;
-}
-.gem-c-print-link__button:hover {
-  color: #003078;
-}
-.gem-c-print-link__button:focus {
-  outline: 3px solid transparent;
-  color: #0b0c0c;
-  background-color: #ffdd00;
-  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-  text-decoration: none;
-}
-.gem-c-print-link__icon {
-  margin-right: 6px;
-  fill: currentColor;
+.mdt-print-link__icon {
+  width: 17px;
+  height: 15px;
   flex-shrink: 0;
+  fill: currentColor;
 }
