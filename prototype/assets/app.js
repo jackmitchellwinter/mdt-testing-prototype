@@ -28,6 +28,9 @@
   // keyed by selection id. Not persisted — a page refresh mid-flow loses it.
   const pendingTestDates = {};
 
+  // Tracks if search error mode is active (prisoner profile history unavailable state)
+  let searchErrorMode = false;
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -2016,7 +2019,11 @@
 
         <h2 class="govuk-heading-l govuk-!-margin-top-6">Random mandatory drug testing history</h2>
         <p class="govuk-body">This history covers random mandatory drug testing activity only. It does not include the results of these tests and it does not include any other type of drug testing (such as suspicion based testing).</p>
-        ${history.length === 0 ? '<p class="govuk-body">No previous test history recorded.</p>' : `
+        ${searchErrorMode ? `
+          <div class="govuk-inset-text">
+            Historical prisoner history is not available in this service yet. To view earlier records, use NOMIS or your own existing records. Historical information will be available in a future version of this service.
+          </div>` :
+          history.length === 0 ? '<p class="govuk-body">No previous test history recorded.</p>' : `
           <table class="govuk-table">
             <caption class="govuk-visually-hidden">Drug test history for ${escape(p.displayName)}</caption>
             <thead class="govuk-table__head">
@@ -2802,5 +2809,15 @@
   subscribe(renderResearchControls);
   subscribe(render);
   wireResearchToggle();
+  
+  // Wire up search button to toggle error state on prisoner profile
+  const searchButton = $('.mdt-dps-header__search');
+  if (searchButton) {
+    searchButton.addEventListener('click', () => {
+      searchErrorMode = !searchErrorMode;
+      render();
+    });
+  }
+  
   render();
 })();
