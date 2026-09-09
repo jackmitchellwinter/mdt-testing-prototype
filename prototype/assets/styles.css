@@ -856,9 +856,7 @@
   }
   .mdt-print-only h2 {
     font-size: 16pt;
-    color: #1d70b8;
-    border-bottom: 2px solid #b1b4b6;
-    padding-bottom: 4px;
+    color: #0b0c0c;
     margin: 20px 0 10px;
   }
   .mdt-print-only table {

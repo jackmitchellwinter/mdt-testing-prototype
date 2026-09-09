@@ -1552,7 +1552,6 @@
         <div class="mdt-print-header">
           <p class="mdt-print-header__tag">Official</p>
           <h1>${escape(state.establishment.name)} — ${escape(month.label)} testing list</h1>
-          <p class="mdt-print-meta">List reference: ${escape(month.id)}. Generated ${month.randomListGeneratedAt ? escape(formatDateTime(month.randomListGeneratedAt)) : 'not yet generated'}.</p>
         </div>
         ${table('Main list', rand, { showPosition: false })}
         <div class="mdt-print-pagebreak"></div>
