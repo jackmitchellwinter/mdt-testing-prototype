@@ -830,7 +830,7 @@
     color: #0b0c0c;
   }
   .mdt-print-header {
-    border-bottom: 4px solid #1d70b8;
+    border-bottom: 4px solid #0b0c0c;
     margin-bottom: 16px;
     padding-bottom: 8px;
   }
@@ -840,8 +840,8 @@
     font-size: 10pt;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #1d70b8;
-    border: 1px solid #1d70b8;
+    color: #0b0c0c;
+    border: 1px solid #0b0c0c;
     padding: 2px 8px;
     margin: 0 0 8px;
   }
