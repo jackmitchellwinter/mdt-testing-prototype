@@ -577,7 +577,9 @@
     const requestedReservePercent = resolveSizePercent(data.reserveSize, data.reserveSizeOther);
     const errors = [];
     if (requestedRandomPercent === null) errors.push({ field: 'randomSize', message: 'Select the size of the main list' });
+    else if (data.randomSize === 'other' && (requestedRandomPercent < 5 || requestedRandomPercent > 15)) errors.push({ field: 'randomSize', message: 'Main list size must be between 5% and 15%' });
     if (requestedReservePercent === null) errors.push({ field: 'reserveSize', message: 'Select the size of the reserve list' });
+    else if (data.reserveSize === 'other' && (requestedReservePercent < 50 || requestedReservePercent > 100)) errors.push({ field: 'reserveSize', message: 'Reserve list size must be between 50% and 100%' });
     if (errors.length) {
       window.__mdtLastErrors = { form: 'generate-lists', errors, values: data };
       render();
@@ -1355,7 +1357,7 @@
             name: 'randomSize',
             legend: 'Select main list size',
             hint: `The policy rule for a prison this size is to select ${percent}% of the prison population.`,
-            options: [10, 5],
+            options: [percent],
             otherLabel: 'Other main list size',
             selectedValue: randomSelected,
             otherValue: values.randomSizeOther,
@@ -1524,7 +1526,7 @@
           ${showPosition ? `<td>${s.listPosition}</td>` : ''}
           <td>${escape(p.displayName)}<br>${escape(p.prisonNumber)}</td>
           <td>${escape(p.location)}</td>
-          <td>${escape(p.religion || '')}</td>
+          <td>${escape(p.ethnicityCode || '')}</td>
           <td>${escape(p.languagesSpoken || '')}</td>
           <td>${escape((p.activeAlerts || []).join(', '))}</td>
           <td class="mdt-print-comments-cell"></td>
@@ -1539,10 +1541,10 @@
             ${opts.showPosition ? '<th>Position</th>' : ''}
             <th>Prisoner</th>
             <th>Location</th>
-            <th>Religion</th>
+            <th>Ethnicity</th>
             <th>Languages spoken</th>
             <th>Alerts</th>
-            <th>Date tested and other comments</th>
+            <th>Comments</th>
           </tr>
         </thead>
         <tbody>${rowsFor(items, opts.showPosition)}</tbody>
