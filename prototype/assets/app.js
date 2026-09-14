@@ -1735,7 +1735,7 @@
             <a class="govuk-link" href="#/mdt/${escape(month.id)}/selection/${escape(sel.id)}?from=${escape(sourceList)}">${escape(p.displayName)}</a><br><span class="govuk-hint govuk-!-font-size-16">${escape(p.prisonNumber)}</span>
           </td>
           ${listType === 'random' ? `<td class="govuk-table__cell" data-sort-value="${escape(isActivatedReserve ? 'Reserve' : 'Main')}">${isActivatedReserve ? 'Reserve' : 'Main'}</td>` : ''}
-          ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.arrivalDate || '')}">${p.arrivalDate ? formatDate(p.arrivalDate) : ''}</td>`}
+          ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.location || '')}">${escape(p.location || '')}</td>`}
           ${hideNewColumns ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(p.releaseDate || '')}">${p.releaseDate ? formatDate(p.releaseDate) : 'No date recorded'}</td>`}
           ${simplified ? '' : `<td class="govuk-table__cell" data-sort-value="${escape(lastTested || '')}">${lastTested ? formatMonthYear(lastTested) : 'Not tested before'}</td>`}
           <td class="govuk-table__cell" data-sort-value="${escape(statusForRow.text)}">${tag(statusForRow.text, statusForRow.modifier)}</td>
@@ -1750,7 +1750,7 @@
       ...(listType === 'reserve' ? [{ key: 'order', label: 'Order' }] : []),
       { key: 'name',      label: 'Prisoner' },
       ...(listType === 'random' ? [{ key: 'originalList', label: 'Original list' }] : []),
-      ...(hideNewColumns ? [] : [{ key: 'custodySince', label: 'In custody since' }]),
+      ...(hideNewColumns ? [] : [{ key: 'location', label: 'Location' }]),
       ...(hideNewColumns ? [] : [{ key: 'releaseDate', label: 'Release date (CRD)' }]),
       ...(simplified ? [] : [{ key: 'tested', label: 'Last selected month' }]),
       { key: 'status',    label: 'Status' }
