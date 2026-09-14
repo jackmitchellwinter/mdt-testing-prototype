@@ -1228,7 +1228,8 @@
       return `
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">${escape(m.label)}</td>
-          <td class="govuk-table__cell">${report.figures.completed} of ${m.allocatedTests}</td>
+          <td class="govuk-table__cell">${m.allocatedTests}</td>
+          <td class="govuk-table__cell">${report.figures.completed}</td>
           <td class="govuk-table__cell">${report.figures.completedReserve}</td>
           <td class="govuk-table__cell"><a class="govuk-link" href="#/mdt/${escape(m.id)}/contained">View ${escape(m.label)}</a></td>
         </tr>`;
@@ -1239,6 +1240,7 @@
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header">Reporting month</th>
+            <th scope="col" class="govuk-table__header">Prisoners to test</th>
             <th scope="col" class="govuk-table__header">Tested from main list</th>
             <th scope="col" class="govuk-table__header">Tested from reserve list</th>
             <th scope="col" class="govuk-table__header">Action</th>
