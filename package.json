@@ -17,6 +17,6 @@
     "govuk-prototype-kit": "13.20.5"
   },
   "engines": {
-    "node": ">=18"
+    "node": "24.x"
   }
 }

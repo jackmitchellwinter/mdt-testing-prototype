@@ -62,6 +62,23 @@ Projects will be scored on a scale of **1–5** for each criterion, where:
 
 # Prototype
 
+## Running locally with Node.js
+
+Use Node.js 24. If you use [nvm](https://github.com/nvm-sh/nvm), run these commands from the repository root:
+
+```sh
+nvm install
+nvm use
+npm ci
+npm start
+```
+
+Open http://localhost:3000. To stop the server, press `Ctrl+C`.
+
+The `.nvmrc` file selects Node.js 24 locally, and the Docker image uses Node.js 24 for deployment.
+
+## Static prototype and supporting documentation
+
 An HTML/JS research prototype implementing the brief and execution plan is in [`prototype/`](prototype/README.md). Open [`prototype/index.html`](prototype/index.html) directly, or serve the folder with `python3 -m http.server 8000`.
 
 Supporting docs:
